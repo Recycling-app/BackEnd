@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secrets ###
+# Firebase Service Account Key
+# 프로젝트 내 어떤 경로에 있든 serviceAccountKey.json 파일을 무시
+**/serviceAccountKey.json
