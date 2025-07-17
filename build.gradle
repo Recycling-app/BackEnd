@@ -25,18 +25,29 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Firebase Admin SDK for Java 추가(연동)
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
+
+	// CVE-2025-48924 취약점을 가진 commons-lang3를 제외 (문제 발생시 해당 의존성을 삭제 예정)
+	// openAPI 사용을 위한 의존성 주입
+	implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'){
+		exclude group: 'org.apache.commons', module: 'commons-lang3'
+	}
+
+	// CVE-2025-48924 취약점이 해결된 commons-lang3의 최신 안정 버전을 직접 추가합니다.
+	// 3.18.0 버전부터 해당 취약점이 해결되었습니다.
+	implementation 'org.apache.commons:commons-lang3:3.18.0'
 }
 
 tasks.named('test') {
