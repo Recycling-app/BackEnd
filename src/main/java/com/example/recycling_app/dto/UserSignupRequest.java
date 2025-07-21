@@ -7,20 +7,28 @@ import lombok.Data;
 @Data
 public class UserSignupRequest {
 
-    @NotBlank(message = "이메일은 필수입니다.")
+    @NotBlank(groups = LocalSignUp.class)
+    @Email(groups = LocalSignUp.class)
     private String email;
 
-    @NotBlank(message = "이름은 필수입니다.")
+    @NotBlank(groups = LocalSignUp.class)
     private String name;
 
-    @Min(value = 1, message = "나이는 1 이상이어야 합니다.")
-    @Max(value = 120, message = "나이는 120 이하이어야 합니다.")
+    @NotBlank(groups = LocalSignUp.class)
+    @Size(min = 8, message = "비밀번호는 8자 이상이어야 합니다.", groups = LocalSignUp.class)
+    private String password;
+
+    @NotBlank(groups = LocalSignUp.class)
+    @Pattern(regexp = "^(010|011|016|017|018|019)-?[0-9]{3,4}-?[0-9]{4}$", message = "올바른 전화번호를 입력하세요")
+    private String phoneNumber;
+
+    @Min(value = 1, groups = LocalSignUp.class)
+    @Max(value = 120, groups = LocalSignUp.class)
     private int age;
 
-    @NotBlank(message = "성별은 필수입니다.")
+    @NotBlank(groups = LocalSignUp.class)
     private String gender;
 
-    @NotBlank(message = "지역은 필수입니다.")
+    @NotBlank(groups = LocalSignUp.class)
     private String region;
 }
-
