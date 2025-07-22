@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "838424729978",
+    "firebase_url": "https://your-name-382bf-default-rtdb.firebaseio.com",
+    "project_id": "your-name-382bf",
+    "storage_bucket": "your-name-382bf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:838424729978:android:6fd741989c1e762e529ec3",
+        "android_client_info": {
+          "package_name": "com.example.myrecycleplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsnpcbDEQKMIS2SmCCzUJVdnmODoF2Frk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
