@@ -1,10 +1,14 @@
 package com.example.recycling_app.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     private String uid;        // Firebase UID or Google 계정 ID
     private String provider;   // 로그인 방식 google / local

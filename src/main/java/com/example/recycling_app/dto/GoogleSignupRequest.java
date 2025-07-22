@@ -7,14 +7,14 @@ import lombok.Data;
 public class GoogleSignupRequest {
 
     @NotBlank
-    private String uid;
-
-    @NotBlank
-    @Email
-    private String email;
+    private String idToken;
 
     @NotBlank
     private String name;
+
+    @NotBlank
+    @Size(min = 8)
+    private String password;
 
     @NotBlank
     @Pattern(regexp = "^(010|011|016|017|018|019)-?[0-9]{3,4}-?[0-9]{4}$")

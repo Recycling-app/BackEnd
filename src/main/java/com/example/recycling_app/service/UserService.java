@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -20,17 +19,15 @@ public class UserService {
                 throw new IllegalStateException("이미 존재하는 이메일입니다.");
             }
 
-            String encryptedPassword = passwordEncoder.encode(req.getPassword());
-
-            // uid는 이메일 자체를 사용하거나 UUID 생성도 가능
             String uid = "local-" + req.getEmail();
+            String hashed = passwordEncoder.encode(req.getPassword());
 
             User user = User.builder()
                     .uid(uid)
                     .provider("local")
                     .email(req.getEmail())
+                    .password(hashed)
                     .name(req.getName())
-                    .password(encryptedPassword)
                     .phoneNumber(req.getPhoneNumber())
                     .age(req.getAge())
                     .gender(req.getGender())
