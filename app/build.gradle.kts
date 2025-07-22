@@ -6,13 +6,11 @@ plugins {
 android {
     namespace = "com.example.myrecycleplication"
     compileSdk = 35
-    // 최신 Android SDK 버전으로 맞춰주세요.
 
     defaultConfig {
         applicationId = "com.example.myrecycleplication"
         minSdk = 24
-        targetSdk = 35// 최소 지원 Android 버전
-        // 타겟 Android SDK 버전
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
