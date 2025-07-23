@@ -3,7 +3,11 @@ package com.example.recycling_app.controller;
 import com.example.recycling_app.dto.*;
 import com.example.recycling_app.service.AuthService;
 import com.example.recycling_app.service.GoogleAuthService;
+import com.example.recycling_app.service.LogoutService;
 import com.example.recycling_app.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "인증", description = "회원가입, 로그인, 로그아웃 API")
 public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
     private final GoogleAuthService googleAuthService;
+    private final LogoutService logoutService; // 추가
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody UserSignupRequest request) {
@@ -43,5 +49,16 @@ public class AuthController {
     public ResponseEntity<JwtLoginResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
         JwtLoginResponse response = googleAuthService.loginWithGoogle(request.getIdToken());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/logout")
+    @Operation(
+            summary = "로그아웃",
+            description = "사용자를 로그아웃시키고 토큰을 무효화합니다.",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    public ResponseEntity<String> logout(@Valid @RequestBody LogoutRequest request) {
+        logoutService.logout(request.getAccessToken(), request.getRefreshToken());
+        return ResponseEntity.ok("로그아웃이 완료되었습니다.");
     }
 }
