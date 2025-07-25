@@ -40,5 +40,16 @@ public class UserService {
             throw new RuntimeException("회원가입 실패: " + e.getMessage());
         }
     }
+
+    // 이메일 찾기 (이름 + 전화번호 기반)
+    public String findEmail(String name, String phoneNumber) {
+        try {
+            return userRepository.findByNameAndPhoneNumber(name, phoneNumber)
+                    .map(User::getEmail)
+                    .orElseThrow(() -> new IllegalStateException("일치하는 사용자를 찾을 수 없습니다."));
+        } catch (Exception e) {
+            throw new RuntimeException("이메일 찾기 중 오류 발생: " + e.getMessage());
+        }
+    }
 }
 

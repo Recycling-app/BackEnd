@@ -40,4 +40,21 @@ public class UserRepository {
                 .get();
         return snapshot.exists();
     }
+
+    // 이름 + 전화번호로 사용자 검색
+    public Optional<User> findByNameAndPhoneNumber(String name, String phoneNumber) throws Exception {
+        ApiFuture<QuerySnapshot> query = firestore.collection(COLLECTION)
+                .whereEqualTo("name", name)
+                .whereEqualTo("phoneNumber", phoneNumber)
+                .get();
+
+        QuerySnapshot snapshot = query.get();
+
+        if (!snapshot.isEmpty()) {
+            User user = snapshot.getDocuments().get(0).toObject(User.class);
+            return Optional.of(user);
+        }
+
+        return Optional.empty();
+    }
 }
