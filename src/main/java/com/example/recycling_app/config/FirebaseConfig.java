@@ -24,3 +24,5 @@ public class FirebaseConfig {
         FirebaseApp.initializeApp(options);
     }
 }
+
+// 제발 푸시 돼. 하고 싶다 푸시 제발제발
