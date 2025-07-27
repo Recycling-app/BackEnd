@@ -8,6 +8,7 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord; // UserRecord import 추가
 import com.google.firebase.cloud.FirestoreClient;
 import com.yourname.recycleapp.dto.ProfileDTO;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class ProfileService {
     private static final String COLLECTION_NAME = "users";                  // Firestore 사용자 컬렉션명
-    private static final String BUCKET_NAME = "your-firebase-bucket-name"; // Firebase Storage 버킷명 (실제 값으로 변경 필요)
+    private static final String BUCKET_NAME = "your-name-382bf.firebasestorage.app"; // Firebase Storage 버킷명 (실제 값으로 변경 필요)
 
     // UID로 Firestore에서 사용자 프로필 조회
     public ProfileDTO getProfile(String uid) throws ExecutionException, InterruptedException {
@@ -103,5 +104,27 @@ public class ProfileService {
                 .get();
 
         return "프로필 일부 항목 수정 완료";
+    }
+
+    // 사용자 비밀번호 변경
+    // 이 메서드는 Firebase Authentication을 사용하여 비밀번호를 직접 업데이트합니다.
+    // 현재 비밀번호 검증은 클라이언트 측에서 이루어지거나, Firebase Admin SDK에서 직접적으로
+    // '현재 비밀번호'를 검증하는 API가 없으므로, 이 메서드는 단순히 새 비밀번호로 업데이트하는 역할을 합니다.
+    // 보안 강화를 위해 클라이언트 측에서 Firebase Authentication의 reauthenticateWithCredential()을 먼저 호출하는 것을 권장합니다.
+    public String changePassword(String uid, String currentPassword, String newPassword) throws FirebaseAuthException {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+
+        // Firebase Admin SDK는 사용자 계정의 현재 비밀번호를 직접 검증하는 API를 제공하지 않습니다.
+        // 따라서 `currentPassword`는 클라이언트 측 유효성 검사 또는 재인증을 위한 정보로 사용됩니다.
+        // 여기서는 `newPassword`로 사용자 비밀번호를 업데이트하는 로직만 포함합니다.
+        try {
+            UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(uid)
+                    .setPassword(newPassword); // 새 비밀번호로 업데이트
+            auth.updateUser(request);
+            return "비밀번호 변경 완료";
+        } catch (FirebaseAuthException e) {
+            // FirebaseAuthException을 다시 던져서 원래 오류를 전파합니다.
+            throw e;
+        }
     }
 }
