@@ -1,10 +1,10 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.5.3' // 버전 충돌 시 최신 버전 유지
+	id 'io.spring.dependency-management' version '1.1.7' // 버전 충돌 시 최신 버전 유지
 }
 
-group = 'com.example'
+group = 'com.example' // 'com.example' 또는 'com.yourname' 중 하나 선택 (일반적으로 'com.example' 유지)
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -24,38 +24,41 @@ repositories {
 }
 
 dependencies {
+	// HEAD (test 브랜치)의 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// USER (User 브랜치)와 HEAD 공통 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// HEAD (test 브랜치)의 의존성 (JWT, Mail, Firebase Admin SDK (버전 9.5.0), OpenAPI, commons-lang3)
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-
-	// Firebase Admin SDK for Java 추가(연동)
-	implementation("com.google.firebase:firebase-admin:9.5.0")
-
-	// CVE-2025-48924 취약점을 가진 commons-lang3를 제외 (문제 발생시 해당 의존성을 삭제 예정)
-	// openAPI 사용을 위한 의존성 주입
+	implementation("com.google.firebase:firebase-admin:9.5.0") // HEAD의 Firebase Admin SDK 버전
 	implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'){
 		exclude group: 'org.apache.commons', module: 'commons-lang3'
 	}
-
-	// CVE-2025-48924 취약점이 해결된 commons-lang3의 최신 안정 버전을 직접 추가합니다.
-	// 3.18.0 버전부터 해당 취약점이 해결되었습니다.
 	implementation 'org.apache.commons:commons-lang3:3.18.0'
+
+	// USER (User 브랜치)의 의존성 (Firebase Admin SDK (버전 9.2.0), Google Cloud Storage)
+	// Firebase Admin SDK 버전은 최신 (9.5.0)으로 통일하는 것이 좋습니다.
+	// implementation 'com.google.firebase:firebase-admin:9.2.0' // 이 부분은 9.5.0과 중복되므로 제거
+	implementation 'com.google.cloud:google-cloud-storage:2.26.0' // User 브랜치의 새로운 의존성
+
+	// Spring Security 테스트 의존성 (HEAD에만 있음)
+	testImplementation 'org.springframework.security:spring-security-test'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-	jvmArgs "-Xshare:off"
+	jvmArgs "-Xshare:off" // HEAD에만 있음, 필요에 따라 유지
 }
