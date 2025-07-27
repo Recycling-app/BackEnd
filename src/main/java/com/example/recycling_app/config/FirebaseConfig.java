@@ -39,3 +39,5 @@ public class FirebaseConfig {
         return FirestoreClient.getFirestore(); // FirebaseApp이 먼저 초기화되어 있어야 안전
     }
 }
+
+// 제발 푸시 돼. 하고 싶다 푸시 제발제발
