@@ -35,9 +35,14 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 
 	// Firebase Admin SDK for Java 추가(연동)
-	implementation 'com.google.firebase:firebase-admin:9.5.0'
+	implementation("com.google.firebase:firebase-admin:9.5.0")
 
 	// CVE-2025-48924 취약점을 가진 commons-lang3를 제외 (문제 발생시 해당 의존성을 삭제 예정)
 	// openAPI 사용을 위한 의존성 주입
@@ -52,4 +57,5 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+	jvmArgs "-Xshare:off"
 }
