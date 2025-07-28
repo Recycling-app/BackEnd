@@ -25,9 +25,9 @@ public class AuthService {
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "존재하지 않는 이메일입니다."));
 
-            if (!"local".equalsIgnoreCase(user.getProvider())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "구글로 가입된 계정입니다. 구글 로그인을 이용해주세요.");
-            }
+//            if (!"local".equalsIgnoreCase(user.getProvider())) {
+//                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "구글로 가입된 계정입니다. 구글 로그인을 이용해주세요.");
+//            }
 
             if (!passwordEncoder.matches(password, user.getPassword())) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");

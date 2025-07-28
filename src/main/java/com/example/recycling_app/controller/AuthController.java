@@ -2,7 +2,7 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.dto.*;
 import com.example.recycling_app.service.AuthService;
-import com.example.recycling_app.service.GoogleAuthService;
+//import com.example.recycling_app.service.GoogleAuthService;
 import com.example.recycling_app.service.LogoutService;
 import com.example.recycling_app.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -27,7 +27,7 @@ public class AuthController {
 
     private final UserService userService;
     private final AuthService authService;
-    private final GoogleAuthService googleAuthService;
+//    private final GoogleAuthService googleAuthService;
     private final LogoutService logoutService; // 추가
 
     @PostMapping("/signup")
@@ -42,17 +42,17 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/google/signup")
-    public ResponseEntity<String> googleSignup(@Valid @RequestBody GoogleSignupRequest request) {
-        googleAuthService.signupWithGoogle(request);
-        return ResponseEntity.ok("구글 회원가입 성공");
-    }
+//    @PostMapping("/google/signup")
+//    public ResponseEntity<String> googleSignup(@Valid @RequestBody GoogleSignupRequest request) {
+//        googleAuthService.signupWithGoogle(request);
+//        return ResponseEntity.ok("구글 회원가입 성공");
+//    }
 
-    @PostMapping("/google/login")
-    public ResponseEntity<JwtLoginResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
-        JwtLoginResponse response = googleAuthService.loginWithGoogle(request.getIdToken());
-        return ResponseEntity.ok(response);
-    }
+//    @PostMapping("/google/login")
+//    public ResponseEntity<JwtLoginResponse> googleLogin(@Valid @RequestBody GoogleLoginRequest request) {
+//        JwtLoginResponse response = googleAuthService.loginWithGoogle(request.getIdToken());
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/logout")
     @Operation(
