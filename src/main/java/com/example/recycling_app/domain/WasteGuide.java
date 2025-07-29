@@ -19,51 +19,48 @@ public class WasteGuide {
     private String csvNumber; // CSV의 "번호" (row[0])
     private String sidoName; // "시도명" (row[1])
     private String sigunguName; // "시군구명" (row[2])
-    private String generalWasteMethod; // "생활쓰레기배출방법" (row[3])
-    private String foodWasteMethod; // "음식물쓰레기배출방법" (row[4])
-    private String recyclableWasteMethod; // "재활용가능쓰레기배출방법" (row[5])
-    private String bulkyWasteMethod; // "대형생활폐기물배출방법" (row[6])
-    private String canMethod; // "캔류배출방법" (row[7])
-    private String metalMethod; // "고철류배출방법" (row[8])
-    private String glassBottleMethod; // "유리병류배출방법" (row[9])
-    private String paperMethod; // "종이류배출방법" (row[10])
-    private String plasticMethod; // "플라스틱류배출방법" (row[11])
-    private String vinylMethod; // "비닐류배출방법" (row[12])
+    private String dongeupmyeonName; // "동읍면" (row[3])
+    private String placeofischargeName; // "배출장소" (row[4])
+    private String emissionsiteType; // "배출장소유형" (row[5])
+    private String generalWasteMethod; // "생활쓰레기배출방법" (row[6])
+    private String foodWasteMethod; // "음식물쓰레기배출방법" (row[7])
+    private String recyclableWasteMethod; // "재활용가능쓰레기배출방법" (row[8])
+    private String bulkyWasteMethod; // "일시적다량폐기물배출방법" (row[9])
+    private String bulkyWasteplaceName; // "일시적다량폐기물배출장소" (row[10])
+    private String databaseDate; // "데이터기준일자" (row[11])
 
     /**
      * CSV 파일의 13개 컬럼에 정확히 맞춰서 생성자를 수동으로 정의합니다.
      * @param csvNumber CSV 파일의 '번호' 컬럼 값
      * @param sidoName CSV 파일의 '시도명' 컬럼 값
      * @param sigunguName CSV 파일의 '시군구명' 컬럼 값
+     * @param dongeupmyeonName CSV 파일의 '동읍면' 컬럼 값
+     * @param placeofischargeName CSV 파일의 '배출장소' 컬럼 값
+     * @param emissionsiteType CSV 파일의 '배출장소유형' 컬럼 값
      * @param generalWasteMethod CSV 파일의 '생활쓰레기배출방법' 컬럼 값
      * @param foodWasteMethod CSV 파일의 '음식물쓰레기배출방법' 컬럼 값
      * @param recyclableWasteMethod CSV 파일의 '재활용가능쓰레기배출방법' 컬럼 값
-     * @param bulkyWasteMethod CSV 파일의 '대형생활폐기물배출방법' 컬럼 값
-     * @param canMethod CSV 파일의 '캔류배출방법' 컬럼 값
-     * @param metalMethod CSV 파일의 '고철류배출방법' 컬럼 값
-     * @param glassBottleMethod CSV 파일의 '유리병류배출방법' 컬럼 값
-     * @param paperMethod CSV 파일의 '종이류배출방법' 컬럼 값
-     * @param plasticMethod CSV 파일의 '플라스틱류배출방법' 컬럼 값
-     * @param vinylMethod CSV 파일의 '비닐류배출방법' 컬럼 값
+     * @param bulkyWasteMethod CSV 파일의 '일시적다량폐기물배출방법' 컬럼 값
+     * @param bulkyWasteplaceName CSV 파일의 '일시적다량폐기물배출장소' 컬럼 값
+     * @param databaseDate CSV 파일의 '데이터기준일자' 컬럼 값
      */
     public WasteGuide(String csvNumber, String sidoName, String sigunguName,
-                      String generalWasteMethod, String foodWasteMethod,
-                      String recyclableWasteMethod, String bulkyWasteMethod,
-                      String canMethod, String metalMethod, String glassBottleMethod,
-                      String paperMethod, String plasticMethod, String vinylMethod) {
+                      String dongeupmyeonName, String placeofischargeName, String emissionsiteType,
+                      String generalWasteMethod, String foodWasteMethod, String recyclableWasteMethod,
+                      String bulkyWasteMethod, String bulkyWasteplaceName, String databaseDate
+                      ) {
         this.csvNumber = csvNumber;
         this.sidoName = sidoName;
         this.sigunguName = sigunguName;
+        this.dongeupmyeonName = dongeupmyeonName;
+        this.placeofischargeName = placeofischargeName;
+        this.emissionsiteType = emissionsiteType;
         this.generalWasteMethod = generalWasteMethod;
-        this.foodWasteMethod = foodWasteMethod;
+        this.foodWasteMethod =  foodWasteMethod;
         this.recyclableWasteMethod = recyclableWasteMethod;
         this.bulkyWasteMethod = bulkyWasteMethod;
-        this.canMethod = canMethod;
-        this.metalMethod = metalMethod;
-        this.glassBottleMethod = glassBottleMethod;
-        this.paperMethod = paperMethod;
-        this.plasticMethod = plasticMethod;
-        this.vinylMethod = vinylMethod;
+        this.bulkyWasteplaceName = bulkyWasteplaceName;
+        this.databaseDate = databaseDate;
     }
 
     /**
