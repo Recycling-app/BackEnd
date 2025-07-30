@@ -1,7 +1,8 @@
+// build.gradle (Module: BackEnd-main)
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.5.3' // Spring Boot 버전
+	id 'io.spring.dependency-management' version '1.1.6' // 의존성 관리 플러그인
 }
 
 group = 'com.example'
@@ -9,7 +10,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
+		languageVersion = JavaLanguageVersion.of(17) // Java 17 사용
 	}
 }
 
@@ -20,19 +21,22 @@ configurations {
 }
 
 repositories {
-	mavenCentral()
+	mavenCentral() // Maven Central 저장소 사용
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// Spring Boot 웹 애플리케이션 스타터 (REST API 개발용)
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	// Lombok (Getter, Setter, 생성자 등을 자동으로 생성)
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// 개발 도구 (애플리케이션 재시작 없이 코드 변경 반영 등)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Firebase Admin SDK (Firestore 연동)
+	implementation 'com.google.firebase:firebase-admin:9.5.0' // Firebase Admin SDK 버전
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
@@ -40,22 +44,18 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-
 	// Firebase Admin SDK for Java 추가(연동)
 	implementation("com.google.firebase:firebase-admin:9.5.0")
 
-	// CVE-2025-48924 취약점을 가진 commons-lang3를 제외 (문제 발생시 해당 의존성을 삭제 예정)
-	// openAPI 사용을 위한 의존성 주입
-	implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'){
-		exclude group: 'org.apache.commons', module: 'commons-lang3'
-	}
+	// OpenCSV (CSV 파일 파싱)
+	implementation 'com.opencsv:opencsv:5.9' // OpenCSV 버전
 
-	// CVE-2025-48924 취약점이 해결된 commons-lang3의 최신 안정 버전을 직접 추가합니다.
-	// 3.18.0 버전부터 해당 취약점이 해결되었습니다.
-	implementation 'org.apache.commons:commons-lang3:3.18.0'
+	// Spring Security (API 접근 제어)
+	// SecurityConfig.java에서 /api/waste-guides 경로를 허용하고 있으므로 이 의존성이 필요합니다.
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-	jvmArgs "-Xshare:off"
+  jvmArgs "-Xshare:off"
 }
