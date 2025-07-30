@@ -44,16 +44,6 @@ public class FirebaseConfig {
             // Firebase 초기화 실패는 애플리케이션 시작에 치명적이므로 런타임 예외를 발생시킵니다.
             throw new RuntimeException("Firebase Admin SDK 초기화에 실패했습니다.", e);
         }
-    }
-
-    // Firestore 인스턴스를 Spring 빈으로 등록합니다.
-    // 이렇게 하면 다른 서비스나 컨트롤러에서 @Autowired를 통해 Firestore 객체를 주입받아 사용할 수 있습니다.
-    @Bean
-    public Firestore firestore() {
-        return FirestoreClient.getFirestore();
-      
-    @PostConstruct
-    public void initFirebase() {
         try {
             InputStream serviceAccount = new ClassPathResource("firebase/firebase-service-account.json").getInputStream();
 
@@ -69,12 +59,14 @@ public class FirebaseConfig {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
+    // Firestore 인스턴스를 Spring 빈으로 등록합니다.
+    // 이렇게 하면 다른 서비스나 컨트롤러에서 @Autowired를 통해 Firestore 객체를 주입받아 사용할 수 있습니다.
     @Bean
     public Firestore firestore() {
-        return FirestoreClient.getFirestore(); // FirebaseApp이 먼저 초기화되어 있어야 안전
-
+        return FirestoreClient.getFirestore();
     }
 }
 

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 
 // Firebase SDK 초기화를 담당하는 설정 클래스
@@ -19,8 +20,7 @@ public class FirebaseInitializer {
     public void init() {
         try {
             // Firebase 서비스 계정 키 JSON 파일 경로
-            FileInputStream serviceAccount =
-                    new FileInputStream("src/main/resources/firebase/firebase-service-account.json");
+            InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("firebase/firebase-service-account.json");
 
             // Firebase 옵션 구성
             FirebaseOptions options = FirebaseOptions.builder()

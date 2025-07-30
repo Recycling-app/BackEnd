@@ -26,7 +26,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 서버의 경우 흔함)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> authorize
+                .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**",
                                 "/api/auth/signup", "/api/auth/login",

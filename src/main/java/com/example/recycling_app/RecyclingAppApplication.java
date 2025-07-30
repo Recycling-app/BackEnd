@@ -7,16 +7,14 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+@EnableScheduling
 @SpringBootApplication
 @ComponentScan(basePackages = "com.example.recycling_app") // 컴포넌트 스캔 범위 명시
-import org.springframework.scheduling.annotation.EnableScheduling;
-
-
-@EnableScheduling
 public class RecyclingAppApplication {
 
 	public static void main(String[] args) {
@@ -35,7 +33,7 @@ public class RecyclingAppApplication {
 		try {
 			// resources 폴더 내의 서비스 계정 키 파일 경로.
 			// 당신의 파일명 'firebase-service-account.json'을 사용합니다.
-			InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("firebase-service-account.json");
+			InputStream serviceAccount = getClass().getClassLoader().getResourceAsStream("firebase/serviceAccount.json");
 
 			if (serviceAccount == null) {
 				throw new IOException("Firebase service account file not found in resources: firebase-service-account.json");
@@ -59,4 +57,5 @@ public class RecyclingAppApplication {
 			System.err.println("예기치 않은 오류로 Firebase Admin SDK 초기화 실패: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
 }
