@@ -55,7 +55,7 @@ public class FirebaseConfig {
     @PostConstruct
     public void initFirebase() {
         try {
-            InputStream serviceAccount = new ClassPathResource("firebase/serviceAccountKey.json").getInputStream();
+            InputStream serviceAccount = new ClassPathResource("firebase/firebase-service-account.json").getInputStream();
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
@@ -77,3 +77,5 @@ public class FirebaseConfig {
 
     }
 }
+
+// 제발 푸시 돼. 하고 싶다 푸시 제발제발
