@@ -1,0 +1,64 @@
+// build.gradle (Project: BackEnd-main)
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	// Spring Boot Starter들 (중복 제거 및 필요한 것만 유지)
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web' // <-- 여기에 하나만 남김
+
+	// Lombok (중복 제거)
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// 개발 도구
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 테스트 의존성
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Firebase Admin SDK (버전 통일: 9.5.0으로)
+	implementation 'com.google.firebase:firebase-admin:9.5.0' // <-- 이 줄만 남깁니다.
+
+	// Apache Commons CSV (공공데이터 CSV 파일 파싱용)
+	implementation 'org.apache.commons:commons-csv:1.10.0' // <-- 이 줄을 추가합니다.
+
+	// OpenAPI 사용을 위한 의존성 주입 (기존 그대로 유지)
+	implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'){
+		exclude group: 'org.apache.commons', module: 'commons-lang3'
+	}
+
+	// CVE-2025-48924 취약점 해결된 commons-lang3의 최신 안정 버전을 직접 추가합니다. (기존 그대로 유지)
+	implementation 'org.apache.commons:commons-lang3:3.18.0'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
