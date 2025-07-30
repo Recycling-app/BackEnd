@@ -13,6 +13,10 @@ import java.io.InputStream;
 
 @SpringBootApplication
 @ComponentScan(basePackages = "com.example.recycling_app") // 컴포넌트 스캔 범위 명시
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+
+@EnableScheduling
 public class RecyclingAppApplication {
 
 	public static void main(String[] args) {
@@ -55,5 +59,4 @@ public class RecyclingAppApplication {
 			System.err.println("예기치 않은 오류로 Firebase Admin SDK 초기화 실패: " + e.getMessage());
 			e.printStackTrace();
 		}
-	}
 }

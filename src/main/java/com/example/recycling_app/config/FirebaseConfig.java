@@ -1,9 +1,9 @@
 package com.example.recycling_app.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +12,11 @@ import org.springframework.core.io.Resource;
 
 import jakarta.annotation.PostConstruct; // Spring Boot 3.x부터는 'javax' 대신 'jakarta' 사용
 import java.io.IOException;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.InputStream;
 
 @Configuration // 이 클래스가 스프링 설정 클래스임을 나타냅니다.
 public class FirebaseConfig {
@@ -46,5 +51,29 @@ public class FirebaseConfig {
     @Bean
     public Firestore firestore() {
         return FirestoreClient.getFirestore();
+      
+    @PostConstruct
+    public void initFirebase() {
+        try {
+            InputStream serviceAccount = new ClassPathResource("firebase/serviceAccountKey.json").getInputStream();
+
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
+
+            if (FirebaseApp.getApps().isEmpty()) {
+                FirebaseApp.initializeApp(options);
+                System.out.println("Firebase Admin SDK 초기화 완료");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Bean
+    public Firestore firestore() {
+        return FirestoreClient.getFirestore(); // FirebaseApp이 먼저 초기화되어 있어야 안전
+
     }
 }
