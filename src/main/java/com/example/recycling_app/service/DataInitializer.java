@@ -1,7 +1,6 @@
 package com.example.recycling_app.service;
 
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.WriteBatch;
 import com.google.cloud.firestore.QuerySnapshot;
 import com.example.recycling_app.domain.WasteGuide;
@@ -30,7 +29,7 @@ import java.util.concurrent.TimeoutException;
 public class DataInitializer {
 
     private final Firestore firestore;
-    private static final String FIRESTORE_COLLECTION_NAME = "wasteGuides";
+    private static final String FIRESTORE_COLLECTION_NAME = "waste_guide_all";
     // 당신의 정확한 CSV 파일 경로와 이름: resources/data/waste_guide_data.csv
     private static final String CSV_FILE_NAME = "data/waste_guide_data.csv";
 
@@ -93,7 +92,7 @@ public class DataInitializer {
 
             // 선택 사항: 기존 컬렉션의 데이터를 모두 삭제하고 새로 넣고 싶다면 아래 주석을 해제하세요.
             // (주의: 이 코드를 활성화하면 매번 앱 시작 시 기존 데이터가 삭제됩니다.)
-
+            /*
             System.out.println("기존 Firestore 컬렉션 '" + FIRESTORE_COLLECTION_NAME + "' 데이터 삭제 중...");
             QuerySnapshot existingDocs = firestore.collection(FIRESTORE_COLLECTION_NAME).get().get(10, TimeUnit.SECONDS);
             for (QueryDocumentSnapshot doc : existingDocs.getDocuments()) {
@@ -102,7 +101,7 @@ public class DataInitializer {
             batch.commit().get(10, TimeUnit.SECONDS); // 삭제 배치 실행
             batch = firestore.batch(); // 새 배치 시작
             System.out.println("기존 데이터 삭제 완료.");
-
+            */
 
             for (String[] row : allRows) {
                 // CSV 행의 컬럼 수가 WasteGuide 생성자에 필요한 13개와 일치하는지 확인
@@ -113,7 +112,6 @@ public class DataInitializer {
 
                 // CSV 행 데이터를 WasteGuide 객체로 매핑
                 WasteGuide wasteGuide = new WasteGuide(
-                        row[0], // 번호 (csvNumber)
                         row[1], // 시도명 (sidoName)
                         row[2], // 시군구명 (sigunguName)
                         row[3], // 동읍면 (dongeupmyeonName)
@@ -125,7 +123,7 @@ public class DataInitializer {
                         row[9], // 일시적다량폐기물배출방법 (bulkyWasteMethod)
                         row[10], // 일시적다량폐기물배출장소 (bulkyWasteplaceName)
                         row[11] // 데이터기준일자 (databaseDate)
-                 );
+                );
                 // Firestore 문서 ID를 UUID로 고유하게 생성하여 배치에 추가
                 batch.set(firestore.collection(FIRESTORE_COLLECTION_NAME).document(UUID.randomUUID().toString()), wasteGuide);
                 recordCount++;

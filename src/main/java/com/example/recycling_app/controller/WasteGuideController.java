@@ -17,7 +17,7 @@ import java.util.List;
  * 클라이언트의 요청을 받아 WasteGuideService를 통해 데이터를 처리하고 응답합니다.
  */
 @RestController
-@RequestMapping("/api/waste-guides") // 기본 API 경로
+@RequestMapping("/api/waste_guide_all") // 기본 API 경로
 public class WasteGuideController {
 
     private final WasteGuideService wasteGuideService;

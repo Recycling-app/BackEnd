@@ -16,7 +16,7 @@ public class WasteGuide {
 
     // CSV 파일의 헤더에 맞춰 13개의 필드를 정의합니다.
     // CSV의 첫 번째 컬럼인 "번호"는 여기서는 'csvNumber'로 명명하여 'id'와 분리합니다.
-    private String csvNumber; // CSV의 "번호" (row[0])
+//    private String csvNumber; // CSV의 "번호" (row[0])
     private String sidoName; // "시도명" (row[1])
     private String sigunguName; // "시군구명" (row[2])
     private String dongeupmyeonName; // "동읍면" (row[3])
@@ -31,7 +31,7 @@ public class WasteGuide {
 
     /**
      * CSV 파일의 13개 컬럼에 정확히 맞춰서 생성자를 수동으로 정의합니다.
-     * @param csvNumber CSV 파일의 '번호' 컬럼 값
+//     * @param csvNumber CSV 파일의 '번호' 컬럼 값
      * @param sidoName CSV 파일의 '시도명' 컬럼 값
      * @param sigunguName CSV 파일의 '시군구명' 컬럼 값
      * @param dongeupmyeonName CSV 파일의 '동읍면' 컬럼 값
@@ -44,12 +44,12 @@ public class WasteGuide {
      * @param bulkyWasteplaceName CSV 파일의 '일시적다량폐기물배출장소' 컬럼 값
      * @param databaseDate CSV 파일의 '데이터기준일자' 컬럼 값
      */
-    public WasteGuide(String csvNumber, String sidoName, String sigunguName,
+    public WasteGuide(String sidoName, String sigunguName,
                       String dongeupmyeonName, String placeofischargeName, String emissionsiteType,
                       String generalWasteMethod, String foodWasteMethod, String recyclableWasteMethod,
                       String bulkyWasteMethod, String bulkyWasteplaceName, String databaseDate
-                      ) {
-        this.csvNumber = csvNumber;
+    ) {
+//        this.csvNumber = csvNumber;
         this.sidoName = sidoName;
         this.sigunguName = sigunguName;
         this.dongeupmyeonName = dongeupmyeonName;

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class WasteGuideService {
 
     private final Firestore firestore;
-    private static final String COLLECTION_NAME = "wasteGuides"; // Firestore 컬렉션 이름
+    private static final String COLLECTION_NAME = "waste_guide_all"; // Firestore 컬렉션 이름
 
     /**
      * Firestore 인스턴스를 주입받아 서비스 초기화합니다.

@@ -32,20 +32,14 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// 개발 도구 (애플리케이션 재시작 없이 코드 변경 반영 등)
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//	// 개발 도구 (애플리케이션 재시작 없이 코드 변경 반영 등)
+//	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// 테스트용 라이브러리
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// Firebase Admin SDK (Firestore 연동)
 	implementation 'com.google.firebase:firebase-admin:9.5.0' // Firebase Admin SDK 버전
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-	// Firebase Admin SDK for Java 추가(연동)
-	implementation("com.google.firebase:firebase-admin:9.5.0")
 
 	// OpenCSV (CSV 파일 파싱)
 	implementation 'com.opencsv:opencsv:5.9' // OpenCSV 버전
@@ -57,5 +51,4 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
-  jvmArgs "-Xshare:off"
 }
