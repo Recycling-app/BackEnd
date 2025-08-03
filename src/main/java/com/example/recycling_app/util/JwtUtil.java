@@ -1,5 +1,7 @@
 package com.example.recycling_app.util;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseToken;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,6 +65,12 @@ public class JwtUtil {
                  IllegalArgumentException e) {
             return false;
         }
+    }
+
+    // 전달받은 Firebase ID 토큰을 검증하고 사용자 UID 반환
+    public String verifyIdToken(String idToken) throws Exception {
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        return decodedToken.getUid();
     }
 
     // 토큰에서 uid (subject) 추출

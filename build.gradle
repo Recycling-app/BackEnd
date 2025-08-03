@@ -40,6 +40,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'com.opencsv:opencsv:5.9'
+	implementation 'com.google.cloud:google-cloud-storage:2.26.0'
 
 	// Firebase Admin SDK for Java 추가(연동)
 	implementation("com.google.firebase:firebase-admin:9.5.0")
