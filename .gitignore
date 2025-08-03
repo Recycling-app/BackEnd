@@ -42,3 +42,8 @@ out/
 **/serviceAccountKey.json
 # Secret properties
 application.properties
+src/main/resources/application.properties
+src/main/java/com/example/recycling_app/service/EmailServiceImpl.java
+src/main/java/com/example/recycling_app/service/EmailServiceImpl.java
+src/main/resources/application.properties
+local.properties
