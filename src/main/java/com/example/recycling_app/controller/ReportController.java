@@ -1,6 +1,5 @@
 package com.example.recycling_app.controller;
 
-
 import com.example.recycling_app.dto.ReportRecordDTO;
 import com.example.recycling_app.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;

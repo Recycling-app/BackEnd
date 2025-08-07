@@ -2,7 +2,8 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.dto.AiRecognitionRecordDTO;
 import com.example.recycling_app.service.ActivityRecordService;
-import com.example.recycling_app.util.JwtUtil;
+import com.example.recycling_app.util.FirebaseTokenVerifier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class ActivityRecordController {
     private ActivityRecordService activityRecordService;           // 활동 기록 조회 서비스
 
     @Autowired
-    private JwtUtil firebaseTokenVerifier;           // Firebase 토큰 검증 객체
+    private FirebaseTokenVerifier firebaseTokenVerifier;           // Firebase 토큰 검증 객체
 
     @GetMapping("/{uid}") // GET /activity/{uid}
     public ResponseEntity<?> getActivityRecords(

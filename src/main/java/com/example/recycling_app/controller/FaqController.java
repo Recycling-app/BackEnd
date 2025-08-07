@@ -3,7 +3,8 @@ package com.example.recycling_app.controller;
 import com.example.recycling_app.dto.FaqDTO;
 import com.example.recycling_app.service.FaqService;
 import com.example.recycling_app.service.UserService;
-import com.example.recycling_app.util.JwtUtil;
+import com.example.recycling_app.util.FirebaseTokenVerifier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class FaqController {
     private FaqService faqService;  // FAQ 서비스 객체 주입
 
     @Autowired
-    private JwtUtil firebaseTokenVerifier; // Firebase 인증 토큰 검증기 주입
+    private FirebaseTokenVerifier firebaseTokenVerifier; // Firebase 인증 토큰 검증기 주입
 
     @Autowired
     private UserService userService;  // 사용자 정보 및 권한 처리 서비스 주입

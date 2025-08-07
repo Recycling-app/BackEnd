@@ -6,9 +6,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import com.example.recycling_app.dto.FavoriteDTO;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 // 사용자 즐겨찾기 관련 비즈니스 로직을 담당하는 서비스 클래스

@@ -3,10 +3,7 @@ package com.example.recycling_app.controller;
 import com.example.recycling_app.service.FcmPushService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 // 클라이언트의 푸시 알림 요청을 처리하는 컨트롤러 클래스
 @RestController

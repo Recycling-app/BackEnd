@@ -2,7 +2,8 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.dto.InquiryDTO;
 import com.example.recycling_app.service.InquiryService;
-import com.example.recycling_app.util.JwtUtil;
+import com.example.recycling_app.util.FirebaseTokenVerifier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class InquiryController {
     private InquiryService inquiryService;                // 문의 비즈니스 로직 처리 서비스
 
     @Autowired
-    private JwtUtil firebaseTokenVerifier;  // Firebase 인증 토큰 검증기
+    private FirebaseTokenVerifier firebaseTokenVerifier;  // Firebase 인증 토큰 검증기
 
     // 문의 등록 (사용자용)
     @PostMapping

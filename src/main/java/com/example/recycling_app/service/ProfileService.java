@@ -1,6 +1,5 @@
 package com.example.recycling_app.service;
 
-import com.example.recycling_app.dto.ProfileDTO;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.Firestore;
 import com.google.cloud.storage.BlobId;
@@ -9,8 +8,9 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
+import com.google.firebase.auth.UserRecord; // UserRecord import 추가
 import com.google.firebase.cloud.FirestoreClient;
+import com.example.recycling_app.dto.ProfileDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

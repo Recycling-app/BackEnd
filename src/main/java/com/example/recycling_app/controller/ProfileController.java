@@ -1,16 +1,15 @@
 package com.example.recycling_app.controller;
 
-import com.example.recycling_app.service.ProfileService;
-import com.example.recycling_app.util.JwtUtil;
-import com.google.firebase.auth.FirebaseAuthException;
 import com.example.recycling_app.dto.ProfileDTO;
-
-import lombok.extern.slf4j.Slf4j;
+import com.example.recycling_app.service.ProfileService;
+import com.example.recycling_app.util.FirebaseTokenVerifier;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j; // 로깅을 위한 Lombok 어노테이션 추가
 
 import java.io.IOException;
 import java.util.Map;
@@ -27,7 +26,7 @@ public class ProfileController {
     private ProfileService profileService; // 프로필 서비스 의존성 주입
 
     @Autowired
-    private JwtUtil firebaseTokenVerifier; // Firebase 토큰 검증기
+    private FirebaseTokenVerifier firebaseTokenVerifier; // Firebase 토큰 검증기
 
     // UID를 기반으로 사용자 프로필 정보 조회
     @GetMapping("/{uid}")

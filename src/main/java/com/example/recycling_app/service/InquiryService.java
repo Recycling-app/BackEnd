@@ -1,9 +1,9 @@
 package com.example.recycling_app.service;
 
-import com.example.recycling_app.dto.InquiryDTO;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import com.example.recycling_app.dto.InquiryDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

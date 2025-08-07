@@ -1,41 +1,40 @@
 package com.example.recycling_app.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.Firestore;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.cloud.FirestoreClient;
 import jakarta.annotation.PostConstruct;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 
+
+// Firebase SDK 초기화를 담당하는 설정 클래스
 @Configuration
-public class FirebaseConfig {
+public class FirebaseInitializer {
 
+    // 빈 생성 직후 실행되어 Firebase를 초기화
     @PostConstruct
-    public void initFirebase() {
+    public void init() {
         try {
-            InputStream serviceAccount = new ClassPathResource("firebase/serviceAccountKey.json").getInputStream();
+            // Firebase 서비스 계정 키 JSON 파일 경로
+            FileInputStream serviceAccount =
+                    new FileInputStream("src/main/resources/firebase/firebase-service-account.json");
 
+            // Firebase 옵션 구성
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
+            // Firebase 앱이 초기화 되어 있지 않으면 초기화 수행
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
-                System.out.println("Firebase Admin SDK 초기화 완료");
+                System.out.println("✅ Firebase initialized");
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Bean
-    public Firestore firestore() {
-        return FirestoreClient.getFirestore(); // FirebaseApp이 먼저 초기화되어 있어야 안전
     }
 }
