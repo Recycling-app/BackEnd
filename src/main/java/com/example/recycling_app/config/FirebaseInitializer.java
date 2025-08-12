@@ -25,6 +25,7 @@ public class FirebaseInitializer {
             // Firebase 옵션 구성
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setStorageBucket("your-name-382bf.firebasestorage.app")
                     .build();
 
             // Firebase 앱이 초기화 되어 있지 않으면 초기화 수행

@@ -1,9 +1,20 @@
 package com.example.recycling_app.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class GeminiRequest {
+    @JsonProperty("classification")
     private String classification;
 
-    // Getter, Setter, 기본 생성자 필요
+    // 기본 생성자
+    public GeminiRequest() {}
+
+    // 생성자
+    public GeminiRequest(String classification) {
+        this.classification = classification;
+    }
+
+    // Getter, Setter
     public String getClassification() {
         return classification;
     }
