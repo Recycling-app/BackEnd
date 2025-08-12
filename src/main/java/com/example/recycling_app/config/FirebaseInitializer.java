@@ -31,7 +31,7 @@ public class FirebaseInitializer {
             // Firebase 앱이 초기화 되어 있지 않으면 초기화 수행
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
-                System.out.println("✅ Firebase initialized");
+                System.out.println("Firebase initialized");
             }
 
         } catch (IOException e) {
