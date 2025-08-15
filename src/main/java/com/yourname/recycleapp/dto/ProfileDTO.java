@@ -5,8 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
- //사용자 프로필 정보를 담는 DTO (Data Transfer Object) 클래스
- //클라이언트와 서버 간 데이터 전달에 사용됨
+//사용자 프로필 정보를 담는 DTO (Data Transfer Object) 클래스
+//클라이언트와 서버 간 데이터 전달에 사용됨
 
 @Data // Lombok 어노테이션: Getter, Setter, toString, equals, hashCode 자동 생성
 @AllArgsConstructor // 모든 필드를 받는 생성자 자동 생성
