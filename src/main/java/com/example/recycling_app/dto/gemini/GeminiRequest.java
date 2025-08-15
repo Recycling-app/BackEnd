@@ -1,4 +1,4 @@
-package com.example.recycling_app.dto;
+package com.example.recycling_app.dto.gemini;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

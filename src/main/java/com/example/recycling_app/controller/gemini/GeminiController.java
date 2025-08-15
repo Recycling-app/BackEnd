@@ -1,8 +1,8 @@
-package com.example.recycling_app.controller;
+package com.example.recycling_app.controller.gemini;
 
-import com.example.recycling_app.dto.GeminiRequest;
-import com.example.recycling_app.dto.GeminiResponse;
-import com.example.recycling_app.service.GeminiService;
+import com.example.recycling_app.dto.gemini.GeminiRequest;
+import com.example.recycling_app.dto.gemini.GeminiResponse;
+import com.example.recycling_app.service.gemini.GeminiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

@@ -1,4 +1,4 @@
-package com.example.recycling_app.service;
+package com.example.recycling_app.service.gemini;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
