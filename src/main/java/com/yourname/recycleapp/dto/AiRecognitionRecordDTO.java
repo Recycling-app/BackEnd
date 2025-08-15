@@ -5,9 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
- //AI 인식 기록 정보를 담는 DTO (Data Transfer Object) 클래스
- //사용자가 업로드한 이미지와 AI가 인식한 결과 및 시간을 포함하며,
- //클라이언트 <-> 서버 간 데이터 전달 시 사용됨
+//AI 인식 기록 정보를 담는 DTO (Data Transfer Object) 클래스
+//사용자가 업로드한 이미지와 AI가 인식한 결과 및 시간을 포함하며,
+//클라이언트 <-> 서버 간 데이터 전달 시 사용됨
 
 @Data // Lombok: Getter/Setter, toString, equals, hashCode 자동 생성
 @AllArgsConstructor // 모든 필드를 받는 생성자 자동 생성
