@@ -1,10 +1,10 @@
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.5.3'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'io.spring.dependency-management' version '1.1.4'
 }
 
-group = 'com.yourname'
+group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -24,15 +24,25 @@ repositories {
 }
 
 dependencies {
+	// Spring Boot 기본 스타터 (JPA 제외)
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	// Firebase Admin SDK
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
+
+	// Google Cloud Storage (Firebase Storage용)
 	implementation 'com.google.cloud:google-cloud-storage:2.26.0'
 
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// DevTools (개발 환경용)
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
