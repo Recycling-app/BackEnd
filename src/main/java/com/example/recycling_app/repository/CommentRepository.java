@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -21,9 +22,22 @@ public class CommentRepository {
         firestore.collection("comments").document(id).set(comment).get();
     }
 
+    public Optional<Comment> findById(String commentId) throws Exception {
+        DocumentSnapshot doc = firestore.collection("comments").document(commentId).get().get();
+        if(doc.exists()) {
+            Comment comment = doc.toObject(Comment.class);
+            if(comment !=null && !comment.isDeleted()) {
+                return Optional.of(comment);
+            }
+        }
+        return Optional.empty();
+    }
+
     public List<Comment> findByPostId(String postId) throws Exception {
         QuerySnapshot qs = firestore.collection("comments")
-                .whereEqualTo("postId", postId).get().get();
+                .whereEqualTo("postId", postId)
+                .whereEqualTo("deleted", false)
+                .get().get();
         List<Comment> result = new ArrayList<>();
         for (DocumentSnapshot doc : qs.getDocuments()) {
             result.add(doc.toObject(Comment.class));

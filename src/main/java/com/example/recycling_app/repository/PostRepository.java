@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -22,10 +23,25 @@ public class PostRepository {
         firestore.collection("posts").document(id).set(post).get();
     }
 
+    public Optional<Post> findById(String postId) throws Exception {
+        DocumentSnapshot doc = firestore.collection("posts").document(postId).get().get();
+        System.out.println("Firestore에서 받은 doc.exists: " + doc.exists() + ", doc.id: " + doc.getId());
+        if(doc.exists()) {
+            Post post = doc.toObject(Post.class);
+            System.out.println("Post.isDeleted: " + (post != null ? post.isDeleted() : "post is null"));
+            if(post!= null && !post.isDeleted()){
+                return Optional.of(post);
+            }
+        }
+        return Optional.empty();
+    }
+
     // 카테고리별 조회
     public List<Post> findByCategory(String category) throws Exception {
         QuerySnapshot qs = firestore.collection("posts")
-                .whereEqualTo("category", category).get().get();
+                .whereEqualTo("category", category)
+                .whereEqualTo("deleted", false)
+                .get().get();
         List<Post> result = new ArrayList<>();
         for (DocumentSnapshot doc : qs.getDocuments()) {
             result.add(doc.toObject(Post.class));

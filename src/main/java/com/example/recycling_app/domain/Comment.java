@@ -21,4 +21,6 @@ public class Comment {
     private String parentId;
     private Date createdAt;
     private Date updatedAt;
+    private boolean isDeleted;  // 논리 삭제
+    private Date deletedAt;
 }

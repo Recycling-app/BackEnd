@@ -32,7 +32,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
 	implementation 'com.google.cloud:google-cloud-storage:2.26.0'
-
+	implementation 'org.springframework.boot:spring-boot-starter'
 }
 
 tasks.named('test') {
