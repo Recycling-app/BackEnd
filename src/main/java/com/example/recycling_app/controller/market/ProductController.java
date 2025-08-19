@@ -5,13 +5,14 @@ import com.example.recycling_app.service.market.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @RestController
-@RequestMapping("/api/products") // API 경로의 공통 부분
+@RequestMapping("/api/products")
 public class ProductController {
 
     private final ProductService productService;
@@ -22,10 +23,20 @@ public class ProductController {
 
     // 상품 등록
     @PostMapping
-    public ResponseEntity<Map<String, Object>> registerProduct(@RequestBody ProductDto product) {
+    public ResponseEntity<Map<String, Object>> registerProduct(
+            @RequestPart("product") ProductDto product,
+            @RequestPart("images") List<MultipartFile> imageFiles
+    ) {
         Map<String, Object> response = new HashMap<>();
+
+        if (imageFiles.size() > 10) { // 사진 업로드 최대 개수 제한
+            response.put("status", "error");
+            response.put("message", "이미지는 최대 10장까지 업로드할 수 있습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
         try {
-            String productId = productService.registerProduct(product);
+            String productId = productService.registerProduct(product, imageFiles);
             response.put("status", "success");
             response.put("productId", productId);
             response.put("message", "상품이 성공적으로 등록되었습니다.");
@@ -33,6 +44,7 @@ public class ProductController {
         } catch (Exception e) {
             response.put("status", "error");
             response.put("message", e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -74,10 +86,10 @@ public class ProductController {
 
     // 상품 삭제
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Map<String, Object>> deleteProduct(
+    public ResponseEntity<Map<Object, Object>> deleteProduct(
             @PathVariable String productId,
             @RequestParam String uid) {
-        Map<String, Object> response = new HashMap<>();
+        Map<Object, Object> response = new HashMap<>();
         try {
             productService.deleteProduct(productId, uid);
             response.put("status", "success");

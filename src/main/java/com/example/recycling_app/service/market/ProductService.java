@@ -5,6 +5,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,20 +16,31 @@ import java.util.concurrent.ExecutionException;
 public class ProductService {
 
     public static final String COLLECTION_NAME = "products"; // Firestore 컬렉션 이름
+    private final FirebaseStorageService firebaseStorageService;
 
+    public ProductService(FirebaseStorageService firebaseStorageService) {
+        this.firebaseStorageService = firebaseStorageService;
+    }
 
     // 상품 등록
-    public String registerProduct(ProductDto product) throws Exception {
+    public String registerProduct(ProductDto product, List<MultipartFile> imageFiles) throws Exception {
         Firestore db = FirestoreClient.getFirestore();
 
-        // 상품을 위한 고유 ID를 생성합니다.
+        // 이미지 파일들을 Firebase Storage에 업로드하고 URL 목록을 받습니다.
+        List<String> imageUrls = new ArrayList<>();
+        for (MultipartFile file : imageFiles) {
+            String imageUrl = firebaseStorageService.uploadFile(file, "products_images");
+            imageUrls.add(imageUrl);
+        }
+        // ProductDto에 이미지 URL 리스트를 설정합니다.
+        product.setImages(imageUrls);
+
+        // 상품 메타데이터를 Firestore에 저장합니다.
         String productId = UUID.randomUUID().toString();
         product.setProductId(productId);
         product.setCreatedAt(System.currentTimeMillis());
 
-        // 'products' 컬렉션에 새로운 문서를 추가합니다.
         ApiFuture<WriteResult> future = db.collection(COLLECTION_NAME).document(productId).set(product);
-
         System.out.println("Update time : " + future.get().getUpdateTime());
 
         return productId; // 생성된 상품의 ID를 반환
@@ -57,7 +69,7 @@ public class ProductService {
     public List<ProductDto> searchProductsByName(String keyword) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
 
-        // Firestore는 부분 문자열 검색이 제한적이므로 모든 상품을 가져와서 필터링
+        // 모든 상품을 가져와서 필터링
         ApiFuture<QuerySnapshot> future = db.collection(COLLECTION_NAME).get();
 
         List<QueryDocumentSnapshot> documents = future.get().getDocuments();
