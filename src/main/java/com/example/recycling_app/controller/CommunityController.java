@@ -24,6 +24,13 @@ public class CommunityController {
         return ResponseEntity.status(201).body(Map.of("message", "게시글이 성공적으로 작성되었습니다."));
     }
 
+    // 전체 게시글 조회
+    @GetMapping("/posts/all")
+    public ResponseEntity<List<Post>> getAllPosts() throws Exception {
+        List<Post> posts = communityService.getAllPosts();
+        return ResponseEntity.ok(posts);
+    }
+
     // 카테고리별 게시글 조회
     @GetMapping("/posts")
     public ResponseEntity<List<Post>> getPostsByCategory(@RequestParam String category) throws Exception {
@@ -50,17 +57,26 @@ public class CommunityController {
 
     // 댓글 작성
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<Map<String, String>> createComment(@PathVariable String postId,
-                                                             @RequestBody Comment comment) throws Exception {
+    public ResponseEntity<?> writeComment(@PathVariable String postId, @RequestBody Comment comment) throws Exception {
         comment.setPostId(postId);
+
+        // 부모댓글 ID가 있으면 parentId 필드에 정확히 설정 (null 가능)
+        if (comment.getParentId() != null && !comment.getParentId().isEmpty()) {
+            // parentId는 직접 받은 부모 댓글 commentId
+        } else {
+            comment.setParentId(null); // 일반 댓글일 때 null로 명시
+        }
+
         communityService.writeComment(comment);
-        return ResponseEntity.status(201).body(Map.of("message", "댓글이 성공적으로 작성되었습니다."));
+        return ResponseEntity.status(201).body("댓글이 성공적으로 작성되었습니다.");
     }
 
-    // 게시글 댓글 조회
+
+    // 댓글 및 대댓글 조회 (parentId optional)
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable String postId) throws Exception {
-        List<Comment> comments = communityService.getCommentsByPostId(postId);
+    public ResponseEntity<List<Comment>> getComments(@PathVariable String postId,
+                                                     @RequestParam(required = false) String parentId) throws Exception {
+        List<Comment> comments = communityService.getCommentsByPostIdAndParent(postId, parentId);
         return ResponseEntity.ok(comments);
     }
 

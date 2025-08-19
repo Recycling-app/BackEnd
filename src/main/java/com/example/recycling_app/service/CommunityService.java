@@ -32,6 +32,11 @@ public class CommunityService {
         postRepository.save(post);
     }
 
+    // 전체 게시글 조회
+    public List<Post> getAllPosts() throws Exception {
+        return postRepository.findAll();
+    }
+
     // 카테고리 별 게시글 리스트 조회 (Soft Delete 적용)
     public List<Post> getPostsByCategory(String category) throws Exception {
         return postRepository.findByCategory(category);
@@ -81,13 +86,22 @@ public class CommunityService {
     public void writeComment(Comment comment) throws Exception {
         comment.setCreatedAt(new Date());
         comment.setUpdatedAt(new Date());
-        comment.setDeleted(false); // soft delete 초기화
+        comment.setDeleted(false);  // soft delete 초기화
+
+        // 최상위 댓글인 경우 명시적 null 처리 필수
+        if (comment.getParentId() == null) {
+            comment.setParentId(null);
+        }
+
         commentRepository.save(comment);
     }
 
-    // 게시글별 댓글 리스트 조회 (Soft Delete 적용)
-    public List<Comment> getCommentsByPostId(String postId) throws Exception {
-        return commentRepository.findByPostId(postId);
+    // 게시글별 댓글 및 대댓글 조회
+    public List<Comment> getCommentsByPostIdAndParent(String postId, String parentId) throws Exception {
+        if (parentId == null)
+            return commentRepository.findByPostIdAndParent(postId, null);
+        else
+            return commentRepository.findByPostIdAndParent(postId, parentId);
     }
 
     // 단일 댓글 조회 (Soft Delete 적용)

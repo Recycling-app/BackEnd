@@ -36,6 +36,18 @@ public class PostRepository {
         return Optional.empty();
     }
 
+    // 전체 게시글 조회
+    public List<Post> findAll() throws Exception {
+        QuerySnapshot qs = firestore.collection("posts")
+                .whereEqualTo("deleted", false)
+                .get().get();
+        List<Post> result = new ArrayList<>();
+        for (DocumentSnapshot doc : qs.getDocuments()) {
+            result.add(doc.toObject(Post.class));
+        }
+        return result;
+    }
+
     // 카테고리별 조회
     public List<Post> findByCategory(String category) throws Exception {
         QuerySnapshot qs = firestore.collection("posts")
