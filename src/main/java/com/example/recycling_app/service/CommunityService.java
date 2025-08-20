@@ -1,6 +1,7 @@
 package com.example.recycling_app.service;
 
 import com.example.recycling_app.domain.Comment;
+import com.example.recycling_app.domain.ContentBlock;
 import com.example.recycling_app.domain.Post;
 import com.example.recycling_app.exception.NotFoundException;
 import com.example.recycling_app.exception.UnauthorizedException;
@@ -21,6 +22,19 @@ public class CommunityService {
     @Autowired
     private CommentRepository commentRepository;
 
+    // 미디어 URL 유효성 검증
+    private void validateMediaContents(List<ContentBlock> contents) {
+        if (contents == null) return;
+
+        contents.forEach(contentItem -> {
+            if ("image".equals(contentItem.getType()) || "video".equals(contentItem.getType())) {
+                if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+                    throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
+                }
+            }
+        });
+    }
+
     // 게시글 작성
     public void writePost(Post post) throws Exception {
         post.setCreatedAt(new Date());
@@ -28,6 +42,15 @@ public class CommunityService {
         post.setDeleted(false); // soft delete 초기화
         if (post.getTitle() == null || post.getTitle().isEmpty()) {
             throw new IllegalArgumentException("게시글 제목은 필수입니다.");
+        }
+        if (post.getContents() != null) {
+            post.getContents().forEach(contentItem -> {
+                if (contentItem.getType().equals("image") || contentItem.getType().equals("video")) {
+                    if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+                        throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
+                    }
+                }
+            });
         }
         postRepository.save(post);
     }
@@ -62,6 +85,8 @@ public class CommunityService {
 
         existingPost.setTitle(updatedPost.getTitle());
         existingPost.setCategory(updatedPost.getCategory());
+        validateMediaContents(updatedPost.getContents());
+
         existingPost.setContents(updatedPost.getContents());
         existingPost.setUpdatedAt(new Date());
 
