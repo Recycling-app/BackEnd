@@ -26,9 +26,9 @@ public class CommunityService {
     private void validateMediaContents(List<ContentBlock> contents) {
         if (contents == null) return;
 
-        contents.forEach(contentItem -> {
-            if ("image".equals(contentItem.getType()) || "video".equals(contentItem.getType())) {
-                if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+        contents.forEach(contentBlock -> {
+            if ("image".equals(contentBlock.getType()) || "video".equals(contentBlock.getType())) {
+                if (contentBlock.getMediaUrl() == null || contentBlock.getMediaUrl().isEmpty()) {
                     throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
                 }
             }
@@ -44,9 +44,9 @@ public class CommunityService {
             throw new IllegalArgumentException("게시글 제목은 필수입니다.");
         }
         if (post.getContents() != null) {
-            post.getContents().forEach(contentItem -> {
-                if (contentItem.getType().equals("image") || contentItem.getType().equals("video")) {
-                    if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+            post.getContents().forEach(contentBlock -> {
+                if (contentBlock.getType().equals("image") || contentBlock.getType().equals("video")) {
+                    if (contentBlock.getMediaUrl() == null || contentBlock.getMediaUrl().isEmpty()) {
                         throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
                     }
                 }
