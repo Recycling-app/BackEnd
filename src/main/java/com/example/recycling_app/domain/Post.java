@@ -1,5 +1,6 @@
 package com.example.recycling_app.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,5 +26,9 @@ public class Post {
     private boolean deleted;
     private Date deletedAt;
     private int likesCount;
+
+    @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+    private boolean isLikedByCurrentUser; // 추가: 현재 유저가 좋아요를 눌렀는지 여부 (DB 저장 X)
+
 //  private int viewCount;
 }

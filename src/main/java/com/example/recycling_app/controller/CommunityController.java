@@ -98,11 +98,17 @@ public class CommunityController {
         return ResponseEntity.noContent().build();
     }
 
-    // 게시글 좋아요 수 증가
+    // 게시글 좋아요 수 증가/감소 (토글 기능)
     @PatchMapping("/posts/{postId}/like")
-    public ResponseEntity<?> incrementLikes(@PathVariable String postId, @RequestBody Map<String, Integer> body) throws Exception {
-        int increment = body.getOrDefault("increment", 1);
-        int likes = communityService.incrementLikes(postId, increment);
-        return ResponseEntity.ok(Map.of("likesCount", likes, "message", "좋아요가 정상적으로 반영되었습니다."));
+    public ResponseEntity<?> toggleLikes(@PathVariable String postId, @RequestParam String uid) throws Exception {
+        int likes = communityService.toggleLikes(postId, uid);
+        return ResponseEntity.ok(Map.of("likesCount", likes));
+    }
+
+    // 게시글 상세 조회 (현재 사용자 UID를 받아 좋아요 상태를 포함)
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<Post> getPostById(@PathVariable String postId, @RequestParam(required = false) String uid) throws Exception {
+        Post post = communityService.getPost(postId, uid);
+        return ResponseEntity.ok(post);
     }
 }
