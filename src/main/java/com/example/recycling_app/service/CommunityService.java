@@ -6,6 +6,7 @@ import com.example.recycling_app.domain.Post;
 import com.example.recycling_app.exception.NotFoundException;
 import com.example.recycling_app.exception.UnauthorizedException;
 import com.example.recycling_app.repository.CommentRepository;
+import com.example.recycling_app.repository.LikeRepository;
 import com.example.recycling_app.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,9 @@ public class CommunityService {
 
     @Autowired
     private PostRepository postRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
 
     @Autowired
     private CommentRepository commentRepository;
@@ -65,10 +69,17 @@ public class CommunityService {
         return postRepository.findByCategory(category);
     }
 
-    // 단일 게시글 조회 (Soft Delete 적용)
-    public Post getPost(String postId) throws Exception {
-        return postRepository.findById(postId)
+    // 단일 게시글 조회 (Soft Delete 적용, 좋아요 상태 포함)
+    public Post getPost(String postId, String uid) throws Exception {
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("게시글이 존재하지 않습니다."));
+
+        if (uid != null) {
+            boolean isLiked = likeRepository.findById(postId, uid).isPresent();
+            post.setLikedByCurrentUser(isLiked);
+        }
+
+        return post;
     }
 
     // 게시글 수정
@@ -166,10 +177,21 @@ public class CommunityService {
         commentRepository.save(comment);
     }
 
-    public int incrementLikes(String postId, int increment) throws Exception {
+    // 좋아요 토글 로직으로 변경
+    public int toggleLikes(String postId, String uid) throws Exception {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("게시글이 존재하지 않습니다."));
-        post.setLikesCount(post.getLikesCount() + increment);
+
+        if (likeRepository.findById(postId, uid).isPresent()) {
+            // 이미 좋아요를 누른 경우, 좋아요 취소 (-1)
+            likeRepository.deleteById(postId, uid);
+            post.setLikesCount(post.getLikesCount() - 1);
+        } else {
+            // 좋아요를 누르지 않은 경우, 좋아요 추가 (+1)
+            likeRepository.save(postId, uid);
+            post.setLikesCount(post.getLikesCount() + 1);
+        }
+
         postRepository.save(post);
         return post.getLikesCount();
     }

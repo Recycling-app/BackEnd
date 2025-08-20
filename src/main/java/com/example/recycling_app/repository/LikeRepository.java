@@ -2,11 +2,13 @@ package com.example.recycling_app.repository;
 
 import com.example.recycling_app.domain.Like;
 import com.google.cloud.firestore.DocumentReference;
+import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Repository
 public class LikeRepository {
@@ -24,5 +26,21 @@ public class LikeRepository {
                 .likedAt(new Date())
                 .build();
         likeRef.set(like).get();
+    }
+
+    // 좋아요 존재 여부를 확인하는 메서드 추가
+    public Optional<Like> findById(String postId, String uid) throws Exception {
+        String likeId = postId + "_" + uid;
+        DocumentSnapshot doc = firestore.collection("likes").document(likeId).get().get();
+        if (doc.exists()) {
+            return Optional.ofNullable(doc.toObject(Like.class));
+        }
+        return Optional.empty();
+    }
+
+    // 좋아요를 삭제하는 메서드 추가
+    public void deleteById(String postId, String uid) throws Exception {
+        String likeId = postId + "_" + uid;
+        firestore.collection("likes").document(likeId).delete().get();
     }
 }
