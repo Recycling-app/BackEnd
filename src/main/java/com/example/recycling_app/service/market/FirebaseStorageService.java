@@ -31,12 +31,3 @@ public class FirebaseStorageService {
 
         // 폴더 경로를 포함한 전체 파일 경로를 생성합니다.
         String fullPath = folderName + "/" + uniqueFileName;
-
-        // Storage에 파일 업로드
-        // bucket.create() 메소드에 전체 경로를 전달합니다.
-        Blob blob = bucket.create(fullPath, file.getInputStream(), file.getContentType());
-
-        // 업로드된 파일에 대한 공개 URL을 생성하여 반환합니다.
-        return String.format("https://storage.googleapis.com/%s/%s", bucket.getName(), fullPath);
-    }
-}
