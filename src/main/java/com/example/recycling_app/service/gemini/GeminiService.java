@@ -1,4 +1,4 @@
-package com.example.recycling_app.service;
+package com.example.recycling_app.service.gemini;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +68,7 @@ public class GeminiService {
         return String.format(
                 "'%s'의 분리수거 방법을 알려주세요. 다음 조건을 반드시 지켜주세요:\n\n" +
                         "1. 단계별로 번호를 붙여서 설명해주세요\n" +
-                        "2. 각 단계는 간결하고 명확한 문장으로 작성해주세요\n" +
+                        "2. 각 단계는 간략하게 명확한 문장 한줄로 작성해주세요\n" +
                         "3. 특수문자나 마크다운 기호는 사용하지 마세요\n" +
                         "4. 각 단계 사이에 한 줄씩 띄어주세요\n" +
                         "5. 최대 3-4개 단계로 압축해서 핵심만 알려주세요\n" +
