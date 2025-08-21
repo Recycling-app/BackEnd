@@ -23,13 +23,27 @@ public class MediaController {
     @PostMapping("/media/upload")
     public ResponseEntity<?> uploadMedia(@RequestParam("file") MultipartFile file) throws Exception {
         String mimeType = file.getContentType();
-        if (mimeType == null || !(mimeType.startsWith("image/") || mimeType.startsWith("video/"))) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "이미지나 동영상 파일만 업로드 가능합니다."));
+        if (mimeType == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "파일 형식이 없습니다."));
         }
-        if (file.getSize() > 10 * 1024 * 1024) { // 10MB 제한
+
+        boolean allowed = mimeType.startsWith("image/") ||
+                mimeType.startsWith("video/") ||
+                mimeType.contains("haansofthwp") ||
+                mimeType.equals("application/msword") ||
+                mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
+                mimeType.equals("application/pdf") ||
+                mimeType.equals("application/octet-stream");;
+        System.out.println("Uploaded file MIME type: " + mimeType);
+
+
+        if (!allowed) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "10MB 이하 파일만 업로드 가능합니다."));
+                    .body(Map.of("error", "지원하지 않는 파일 형식입니다."));
+        }
+        if (file.getSize() > 20 * 1024 * 1024) { // 20MB 제한
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "20MB 이하 파일만 업로드 가능합니다."));
         }
 
         String url = firebaseStorageService.uploadFile(file);

@@ -10,6 +10,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
@@ -21,7 +23,7 @@ public class FirebaseStorageService {
         try (InputStream serviceAccount = resource.getInputStream()) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setStorageBucket("your-project-id.appspot.com")
+                    .setStorageBucket("your-name-382bf.firebasestorage.app")
                     .build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
@@ -32,9 +34,10 @@ public class FirebaseStorageService {
     public String uploadFile(MultipartFile file) throws Exception{
         String fileName = UUID.randomUUID().toString()+"-"+file.getOriginalFilename();
         StorageClient.getInstance().bucket().create(fileName, file.getBytes(), file.getContentType());
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
+        encodedFileName = encodedFileName.replace("+", "%20");
         // URL 포맷: https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/{파일명}?alt=media
-        return "https://firebasestorage.googleapis.com/v0/b/your-name-382bf.appspot.com/o/" +
-                java.net.URLEncoder.encode(fileName, "UTF-8") + "?alt=media";
+        return "https://firebasestorage.googleapis.com/v0/b/your-name-382bf.firebasestorage.app/o/" +
+                encodedFileName + "?alt=media";
     }
 }
-

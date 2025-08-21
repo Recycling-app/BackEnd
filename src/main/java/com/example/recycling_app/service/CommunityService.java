@@ -30,9 +30,9 @@ public class CommunityService {
     private void validateMediaContents(List<ContentBlock> contents) {
         if (contents == null) return;
 
-        contents.forEach(contentItem -> {
-            if ("image".equals(contentItem.getType()) || "video".equals(contentItem.getType())) {
-                if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+        contents.forEach(contentBlock -> {
+            if ("image".equals(contentBlock.getType()) || "video".equals(contentBlock.getType())) {
+                if (contentBlock.getMediaUrl() == null || contentBlock.getMediaUrl().isEmpty()) {
                     throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
                 }
             }
@@ -49,9 +49,9 @@ public class CommunityService {
             throw new IllegalArgumentException("게시글 제목은 필수입니다.");
         }
         if (post.getContents() != null) {
-            post.getContents().forEach(contentItem -> {
-                if (contentItem.getType().equals("image") || contentItem.getType().equals("video")) {
-                    if (contentItem.getMediaUrl() == null || contentItem.getMediaUrl().isEmpty()) {
+            post.getContents().forEach(contentBlock -> {
+                if (contentBlock.getType().equals("image") || contentBlock.getType().equals("video")) {
+                    if (contentBlock.getMediaUrl() == null || contentBlock.getMediaUrl().isEmpty()) {
                         throw new IllegalArgumentException("미디어 URL이 올바르지 않습니다.");
                     }
                 }
@@ -209,5 +209,26 @@ public class CommunityService {
 
         postRepository.save(post);
         return post.getLikesCount();
+    }
+
+    // 내가 작성한 게시글 조회
+    public List<Post> getPostsByUser(String uid) throws Exception {
+        return postRepository.findByUidAndDeletedFalse(uid);
+    }
+
+    // 내가 작성한 댓글 조회
+    public List<Comment> getCommentsByUser(String uid) throws Exception {
+        return commentRepository.findByUidAndDeletedFalse(uid);
+    }
+
+    // 내가 댓글 단 게시글 조회 (중복 게시글 제거)
+    public List<Post> getPostsCommentedByUser(String uid) throws Exception {
+        List<String> postIds = commentRepository.findDistinctPostIdsByUidAndDeletedFalse(uid);
+        return postRepository.findAllById(postIds);
+    }
+
+    // 내가 좋아요한 게시글 조회
+    public List<Post> getLikedPostsByUser(String uid) throws Exception {
+        return likeRepository.findPostsLikedByUser(uid);
     }
 }

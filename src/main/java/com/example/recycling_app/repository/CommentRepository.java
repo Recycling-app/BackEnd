@@ -50,4 +50,36 @@ public class CommentRepository {
         }
         return result;
     }
+
+    // 내 작성 댓글 모두 조회 (deleted=false)
+    public List<Comment> findByUidAndDeletedFalse(String uid) throws Exception {
+        QuerySnapshot qs = firestore.collection("comments")
+                .whereEqualTo("uid", uid)
+                .whereEqualTo("deleted", false)
+                .get().get();
+
+        List<Comment> result = new ArrayList<>();
+        for (DocumentSnapshot doc : qs.getDocuments()) {
+            result.add(doc.toObject(Comment.class));
+        }
+        return result;
+    }
+
+    // 내가 댓글 단 게시글 ID 목록 (distinct postId) 조회
+    public List<String> findDistinctPostIdsByUidAndDeletedFalse(String uid) throws Exception {
+        QuerySnapshot qs = firestore.collection("comments")
+                .whereEqualTo("uid", uid)
+                .whereEqualTo("deleted", false)
+                .select("postId")
+                .get().get();
+
+        List<String> postIds = new ArrayList<>();
+        for (DocumentSnapshot doc : qs.getDocuments()) {
+            String postId = doc.getString("postId");
+            if (postId != null && !postIds.contains(postId)) {
+                postIds.add(postId);
+            }
+        }
+        return postIds;
+    }
 }
