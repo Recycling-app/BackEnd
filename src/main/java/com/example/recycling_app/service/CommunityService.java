@@ -195,4 +195,25 @@ public class CommunityService {
         postRepository.save(post);
         return post.getLikesCount();
     }
+
+    // 내가 작성한 게시글 조회
+    public List<Post> getPostsByUser(String uid) throws Exception {
+        return postRepository.findByUidAndDeletedFalse(uid);
+    }
+
+    // 내가 작성한 댓글 조회
+    public List<Comment> getCommentsByUser(String uid) throws Exception {
+        return commentRepository.findByUidAndDeletedFalse(uid);
+    }
+
+    // 내가 댓글 단 게시글 조회 (중복 게시글 제거)
+    public List<Post> getPostsCommentedByUser(String uid) throws Exception {
+        List<String> postIds = commentRepository.findDistinctPostIdsByUidAndDeletedFalse(uid);
+        return postRepository.findAllById(postIds);
+    }
+
+    // 내가 좋아요한 게시글 조회
+    public List<Post> getLikedPostsByUser(String uid) throws Exception {
+        return likeRepository.findPostsLikedByUser(uid);
+    }
 }

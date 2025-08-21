@@ -111,4 +111,32 @@ public class CommunityController {
         Post post = communityService.getPost(postId, uid);
         return ResponseEntity.ok(post);
     }
+
+    // 내가 작성한 게시글 조회
+    @GetMapping("/me/posts")
+    public ResponseEntity<List<Post>> getMyPosts(@RequestParam String uid) throws Exception {
+        List<Post> posts = communityService.getPostsByUser(uid);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 내가 작성한 댓글 조회
+    @GetMapping("/me/comments")
+    public ResponseEntity<List<Comment>> getMyComments(@RequestParam String uid) throws Exception {
+        List<Comment> comments = communityService.getCommentsByUser(uid);
+        return ResponseEntity.ok(comments);
+    }
+
+    // 내가 댓글 단 게시글 조회 (중복 게시글 없이)
+    @GetMapping("/me/commented-posts")
+    public ResponseEntity<List<Post>> getPostsCommentedByMe(@RequestParam String uid) throws Exception {
+        List<Post> posts = communityService.getPostsCommentedByUser(uid);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 내가 좋아요한 게시글 조회
+    @GetMapping("/me/likes")
+    public ResponseEntity<List<Post>> getMyLikedPosts(@RequestParam String uid) throws Exception {
+        List<Post> likedPosts = communityService.getLikedPostsByUser(uid);
+        return ResponseEntity.ok(likedPosts);
+    }
 }

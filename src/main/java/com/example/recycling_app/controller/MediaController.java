@@ -29,10 +29,13 @@ public class MediaController {
 
         boolean allowed = mimeType.startsWith("image/") ||
                 mimeType.startsWith("video/") ||
-                mimeType.equals("application/haansofthwp") ||
+                mimeType.contains("haansofthwp") ||
                 mimeType.equals("application/msword") ||
                 mimeType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") ||
-                mimeType.equals("application/pdf");
+                mimeType.equals("application/pdf") ||
+                mimeType.equals("application/octet-stream");;
+        System.out.println("Uploaded file MIME type: " + mimeType);
+
 
         if (!allowed) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -60,4 +60,33 @@ public class PostRepository {
         }
         return result;
     }
+
+    // UID 기준 작성 게시글 조회 (deleted = false)
+    public List<Post> findByUidAndDeletedFalse(String uid) throws Exception {
+        QuerySnapshot qs = firestore.collection("posts")
+                .whereEqualTo("uid", uid)
+                .whereEqualTo("deleted", false)
+                .get().get();
+
+        List<Post> result = new ArrayList<>();
+        for (DocumentSnapshot doc : qs.getDocuments()) {
+            result.add(doc.toObject(Post.class));
+        }
+        return result;
+    }
+
+    // ID 리스트로 게시글 조회(중복 제거, deleted 검사 없음)
+    public List<Post> findAllById(List<String> postIds) throws Exception {
+        List<Post> result = new ArrayList<>();
+        for (String postId : postIds) {
+            DocumentSnapshot doc = firestore.collection("posts").document(postId).get().get();
+            if (doc.exists()) {
+                Post post = doc.toObject(Post.class);
+                if (post != null && !post.isDeleted()) {
+                    result.add(post);
+                }
+            }
+        }
+        return result;
+    }
 }
