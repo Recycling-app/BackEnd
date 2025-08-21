@@ -54,12 +54,12 @@ public class GeminiController {
         }
     }
 
-    @GetMapping("/health")
+    @PostMapping("/health")
     public ResponseEntity<GeminiResponse> healthCheck() {
         return ResponseEntity.ok(GeminiResponse.success("서버가 정상적으로 작동중입니다."));
     }
 
-    // CHANGED: 기존 /ask 엔드포인트도 새로운 방식과 동일하게 수정하여 안정성 확보
+    // 기존 /ask 엔드포인트도 새로운 방식과 동일하게 수정하여 안정성 확보
     @PostMapping("/ask")
     public ResponseEntity<GeminiResponse> askGemini(@RequestBody GeminiRequest request) {
         // 새로운 /recycling-info 엔드포인트와 동일한 로직을 사용
