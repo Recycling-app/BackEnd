@@ -14,7 +14,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-@Service
+@Service("communityFirebaseStorageService")
 public class FirebaseStorageService {
 
     @PostConstruct
