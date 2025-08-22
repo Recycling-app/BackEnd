@@ -8,14 +8,16 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord; // UserRecord import 추가
+import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 import com.example.recycling_app.dto.ProfileDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -107,24 +109,23 @@ public class ProfileService {
     }
 
     // 사용자 비밀번호 변경
-    // 이 메서드는 Firebase Authentication을 사용하여 비밀번호를 직접 업데이트합니다.
-    // 현재 비밀번호 검증은 클라이언트 측에서 이루어지거나, Firebase Admin SDK에서 직접적으로
-    // '현재 비밀번호'를 검증하는 API가 없으므로, 이 메서드는 단순히 새 비밀번호로 업데이트하는 역할을 합니다.
-    // 보안 강화를 위해 클라이언트 측에서 Firebase Authentication의 reauthenticateWithCredential()을 먼저 호출하는 것을 권장합니다.
     public String changePassword(String uid, String currentPassword, String newPassword) throws FirebaseAuthException {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-
-        // Firebase Admin SDK는 사용자 계정의 현재 비밀번호를 직접 검증하는 API를 제공하지 않습니다.
-        // 따라서 `currentPassword`는 클라이언트 측 유효성 검사 또는 재인증을 위한 정보로 사용됩니다.
-        // 여기서는 `newPassword`로 사용자 비밀번호를 업데이트하는 로직만 포함합니다.
         try {
             UserRecord.UpdateRequest request = new UserRecord.UpdateRequest(uid)
                     .setPassword(newPassword); // 새 비밀번호로 업데이트
             auth.updateUser(request);
             return "비밀번호 변경 완료";
         } catch (FirebaseAuthException e) {
-            // FirebaseAuthException을 다시 던져서 원래 오류를 전파합니다.
             throw e;
         }
+    }
+
+    // 모든 사용자의 UID 목록을 조회하는 메서드
+    public List<String> getAllUserUids() throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        List<String> uids = new ArrayList<>();
+        db.collection(COLLECTION_NAME).listDocuments().forEach(docRef -> uids.add(docRef.getId()));
+        return uids;
     }
 }

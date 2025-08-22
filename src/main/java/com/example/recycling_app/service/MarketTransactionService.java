@@ -14,10 +14,9 @@ import java.util.concurrent.ExecutionException;
 // 사용자 거래(market transaction) 기록을 저장하고 조회하는 서비스 클래스
 @Service
 public class MarketTransactionService {
-    private static final String COLLECTION_NAME = "market_transactions"; // Firestore 거래 기록 컬렉션명
+    private static final String COLLECTION_NAME= "market_transactions"; // Firestore 거래 기록 컬렉션명
 
     // 거래 기록 저장
-    // transactionId가 없으면 UUID 생성 후 지정
     public String saveTransaction(String uid, MarketTransactionDTO transactionDTO) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
 
@@ -26,12 +25,12 @@ public class MarketTransactionService {
         }
 
         ApiFuture<WriteResult> future = db.collection(COLLECTION_NAME)
-                .document(uid)                                  // 사용자 문서
-                .collection("transactions")         // 거래 서브컬렉션
-                .document(transactionDTO.getTransactionId())    // 거래 문서 ID
-                .set(transactionDTO);                           // 데이터 저장
+                .document(uid)
+                .collection("transactions")
+                .document(transactionDTO.getTransactionId())
+                .set(transactionDTO);
 
-        future.get(); // 저장 완료 대기
+        future.get();
         return "거래 기록 저장 완료";
     }
 
@@ -39,13 +38,45 @@ public class MarketTransactionService {
     public List<MarketTransactionDTO> getTransactions(String uid) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
         ApiFuture<QuerySnapshot> future = db.collection(COLLECTION_NAME)
-                .document(uid)                                // 사용자 문서
-                .collection("transactions")        // 거래 서브컬렉션
-                .get();                                       // 전체 문서 조회
+                .document(uid)
+                .collection("transactions")
+                .get();
 
         List<MarketTransactionDTO> list = new ArrayList<>();
         for (DocumentSnapshot doc : future.get().getDocuments()) {
-            list.add(doc.toObject(MarketTransactionDTO.class));  // 문서 → DTO 변환 후 리스트에 추가
+            list.add(doc.toObject(MarketTransactionDTO.class));
+        }
+        return list;
+    }
+
+    // 특정 사용자의 판매 기록만 조회
+    public List<MarketTransactionDTO> getSales(String uid) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = db.collection(COLLECTION_NAME)
+                .document(uid)
+                .collection("transactions")
+                .whereEqualTo("transactionType", "SALE")
+                .get();
+
+        List<MarketTransactionDTO> list = new ArrayList<>();
+        for (DocumentSnapshot doc : future.get().getDocuments()) {
+            list.add(doc.toObject(MarketTransactionDTO.class));
+        }
+        return list;
+    }
+
+    // 특정 사용자의 구매 기록만 조회
+    public List<MarketTransactionDTO> getPurchases(String uid) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+        ApiFuture<QuerySnapshot> future = db.collection(COLLECTION_NAME)
+                .document(uid)
+                .collection("transactions")
+                .whereEqualTo("transactionType", "PURCHASE")
+                .get();
+
+        List<MarketTransactionDTO> list = new ArrayList<>();
+        for (DocumentSnapshot doc : future.get().getDocuments()) {
+            list.add(doc.toObject(MarketTransactionDTO.class));
         }
         return list;
     }
