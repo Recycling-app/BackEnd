@@ -26,9 +26,10 @@ public class RecyclingScheduleController {
 
     // 사용자 지역의 분리수거 일정 조회
     @GetMapping
-    public ResponseEntity<?> getRecyclingScheduleByRegion(@RequestHeader("Authorization") String idToken) {
+    public ResponseEntity<?> getRecyclingScheduleByRegion(@RequestHeader(value = "Authorization", required = false) String idToken) {
         try {
             String uid = firebaseTokenVerifier.verifyIdToken(idToken);
+//            String uid = "test_user_uid_123"; // 필터를 건너뛰고 임시 UID를 사용
             String userAddress = profileService.getProfile(uid).getAddress();
 
             // 주소에서 시도와 시군구 정보 추출 (예: "대구광역시 군위군 부계면...")

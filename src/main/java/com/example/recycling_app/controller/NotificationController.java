@@ -22,6 +22,7 @@ public class NotificationController {
     public ResponseEntity<?> getNotificationSetting(@RequestHeader("Authorization") String idToken) {
         try {
             String uid = firebaseTokenVerifier.verifyIdToken(idToken);
+//            String uid = "test_user_uid_123";
             NotificationSettingDTO setting = notificationService.getNotificationSetting(uid);
             return ResponseEntity.ok(setting);
         } catch (Exception e) {
@@ -32,10 +33,11 @@ public class NotificationController {
     // 전체 알림 설정 업데이트
     @PostMapping
     public ResponseEntity<?> updateNotificationSetting(
-            @RequestHeader("Authorization") String idToken,
+            @RequestHeader(value = "Authorization", required = false) String idToken,
             @RequestBody NotificationSettingDTO settingDTO) {
         try {
             String uid = firebaseTokenVerifier.verifyIdToken(idToken);
+//            String uid = "test_user_uid_123";
             notificationService.updateNotificationSetting(uid, settingDTO);
             return ResponseEntity.ok("알림 설정이 성공적으로 업데이트되었습니다.");
         } catch (Exception e) {

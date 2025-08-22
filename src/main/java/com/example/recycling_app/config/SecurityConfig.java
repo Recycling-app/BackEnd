@@ -22,9 +22,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안함
                 .authorizeHttpRequests(authorize -> authorize
-                        // 인증 필요 없는 경로
-                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        // 테스트용: 모든 요청 허용
+                        //.anyRequest().permitAll()
+//                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()  // 인증 필요 없는 경로
                         .anyRequest().permitAll()
                 )
                 // 기존 FirebaseTokenFilter는 남겨둠 (테스트 시 무시 가능)
@@ -32,6 +31,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-    // 필요 시 PasswordEncoder 등 Bean 유지
 }

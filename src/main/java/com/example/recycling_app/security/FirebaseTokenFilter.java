@@ -21,6 +21,9 @@ import java.util.Collections;
 @Slf4j
 public class FirebaseTokenFilter extends OncePerRequestFilter {
 
+//  테스트용 임시 UID 정의
+//  private static final String TEST_UID = "test_user_uid_123";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -35,6 +38,28 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         }
 
         String idToken = authorizationHeader.substring(7); // "Bearer " 제외한 실제 토큰
+        log.info("수신된 ID Token: [{}]", idToken);
+
+//        // --- 여기에 테스트 모드 로직 추가 시작 ---
+//        if ("test_token".equals(idToken)) {
+//            String uid = "test_user_uid_123";
+//
+//            UserDetails userDetails = User.builder()
+//                    .username(uid)
+//                    .password("")
+//                    .authorities(Collections.singletonList(() -> "ROLE_USER"))
+//                    .build();
+//
+//            UsernamePasswordAuthenticationToken authentication =
+//                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            request.setAttribute("uid", uid);
+//
+//            log.info("테스트 모드 활성화: Firebase ID Token 검증 건너뛰고 UID: {} 사용", uid);
+//            filterChain.doFilter(request, response); // 여기서 다음 필터로 바로 진행
+//            return; // 이 요청에 대한 필터링을 여기서 종료
+//        }
+//// --- 테스트 모드 로직 추가 끝 ---
 
         try {
             // 2. Firebase Admin SDK를 사용하여 ID 토큰 검증
@@ -45,8 +70,7 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             String email = decodedToken.getEmail(); // 이메일도 필요시 추출
 
             // 4. Spring Security 컨텍스트에 사용자 정보 저장
-            // 여기서는 간단하게 UserDetails 객체를 생성하여 저장합니다.
-            // 실제 앱에서는 데이터베이스에서 사용자 정보를 조회하여 더 상세한 UserDetails를 구성할 수 있습니다.
+            // 여기서는 간단하게 UserDetails 객체를 생성하여 저장
             UserDetails userDetails = User.builder()
                     .username(uid) // UID를 username으로 사용
                     .password("") // 비밀번호는 토큰 기반 인증이므로 필요 없음
