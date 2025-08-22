@@ -12,15 +12,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
-@Service("communityFirebaseStorageService")
+@Service
 public class FirebaseStorageService {
 
-    private static final String BUCKET_NAME = "your-project-id.appspot.com";
+    private static final String BUCKET_NAME = "your-name-382bf.firebasestorage.app";
 
     @PostConstruct
     public void initialize() throws Exception {
@@ -29,7 +31,6 @@ public class FirebaseStorageService {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setStorageBucket(BUCKET_NAME)
-                    .setStorageBucket("your-name-382bf.firebasestorage.app")
                     .build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
@@ -47,9 +48,8 @@ public class FirebaseStorageService {
 
     // MultipartFile을 Firebase Storage의 지정된 폴더에 업로드하고 공개 URL을 반환합니다.
     public String uploadFile(MultipartFile file, String folderName) throws Exception {
-        // 파일 이름 생성 (코드를 한 곳에서 관리)
+        // 파일 이름 생성
         String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
-
         String fullPath;
 
         // folderName 유무에 따라 경로 설정
@@ -59,12 +59,19 @@ public class FirebaseStorageService {
             fullPath = fileName;
         }
 
-        // 파일 업로드
-        StorageClient.getInstance().bucket().create(fullPath, file.getBytes(), file.getContentType());
+        var bucket = StorageClient.getInstance().bucket();
 
-        // URL 반환 (BUCKET_NAME 상수를 사용하여 일관성 유지)
-        return "https://firebasestorage.googleapis.com/v0/b/" + BUCKET_NAME + "/o/" +
-                java.net.URLEncoder.encode(fullPath, "UTF-8") + "?alt=media";
+        // 파일 업로드
+        bucket.create(fullPath, file.getBytes(), file.getContentType());
+
+        // 업로드된 파일의 참조(Blob)를 가져옵니다.
+        Blob blob = bucket.get(fullPath);
+
+        // 유효한 서명된 URL(토큰 포함)을 생성합니다.
+        URL signedUrl = blob.signUrl(36500, TimeUnit.DAYS);
+
+        // 생성된 완전한 URL을 문자열로 반환합니다.
+        return signedUrl.toString();
     }
 
     // Firebase Storage에서 파일을 삭제합니다.
@@ -82,13 +89,5 @@ public class FirebaseStorageService {
         } else {
             System.out.println("Storage 파일이 존재하지 않음: " + fullPath);
         }
-    public String uploadFile(MultipartFile file) throws Exception{
-        String fileName = UUID.randomUUID().toString()+"-"+file.getOriginalFilename();
-        StorageClient.getInstance().bucket().create(fileName, file.getBytes(), file.getContentType());
-        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString());
-        encodedFileName = encodedFileName.replace("+", "%20");
-        // URL 포맷: https://firebasestorage.googleapis.com/v0/b/your-project-id.appspot.com/o/{파일명}?alt=media
-        return "https://firebasestorage.googleapis.com/v0/b/your-name-382bf.firebasestorage.app/o/" +
-                encodedFileName + "?alt=media";
     }
 }
