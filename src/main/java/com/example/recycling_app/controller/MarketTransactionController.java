@@ -8,12 +8,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+// 거래 기록 관련 요청을 처리하는 REST 컨트롤러
+// 사용자 거래 기록 저장
+// 사용자 거래 기록 조회
 @RestController
 @RequestMapping("/market")
 public class MarketTransactionController {
 
     @Autowired
-    private MarketTransactionService transactionService;
+    private MarketTransactionService transactionService; // 거래 관련 비즈니스 로직을 처리하는 서비스
+
 
     // 특정 사용자의 거래 기록 저장 요청을 처리하는 API 엔드포인트
     @PostMapping("/{uid}")
@@ -23,7 +28,7 @@ public class MarketTransactionController {
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body("거래 기록 저장 실패");
+            return ResponseEntity.internalServerError().body("거래 기록 저장 실패"); // 실패 시 500 응답
         }
     }
 

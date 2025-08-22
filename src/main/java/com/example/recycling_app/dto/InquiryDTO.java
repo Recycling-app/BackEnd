@@ -5,8 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+
 // 사용자 문의 데이터를 담는 DTO 클래스
 // 사용자가 작성한 문의 제목, 내용, 작성 시간 및 답변 내용을 포함
+// 사용자 문의 데이터를 담는 DTO 클래스
+// 사용자가 작성한 문의 제목, 내용, 작성 시간 및 답변 내용을 포함
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
