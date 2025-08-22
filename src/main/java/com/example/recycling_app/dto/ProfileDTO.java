@@ -20,4 +20,5 @@ public class ProfileDTO {
     private String profileImageUrl; //프로필 이미지의 URL (Firebase Storage 등 외부 저장소 경로)
     private String nickname; //사용자가 설정한 닉네임
     private boolean isProfilePublic; // 프로필 공개 여부 추가
+    private String uid;
 }
