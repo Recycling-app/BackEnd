@@ -197,12 +197,12 @@ public class CommunityService {
     }
 
     // 내가 작성한 게시글 조회
-    public List<Post> getPostsByUser(String uid) throws Exception {
+    public List<Post> getMyPosts(String uid) throws Exception {
         return postRepository.findByUidAndDeletedFalse(uid);
     }
 
     // 내가 작성한 댓글 조회
-    public List<Comment> getCommentsByUser(String uid) throws Exception {
+    public List<Comment> getMyComments(String uid) throws Exception {
         return commentRepository.findByUidAndDeletedFalse(uid);
     }
 
@@ -215,5 +215,14 @@ public class CommunityService {
     // 내가 좋아요한 게시글 조회
     public List<Post> getLikedPostsByUser(String uid) throws Exception {
         return likeRepository.findPostsLikedByUser(uid);
+    }
+
+    // 사용자 (상대방) 글, 댓글 조회
+    public List<Post> getUserPosts(String uid) throws Exception {
+        return postRepository.findByUidAndDeletedFalse(uid);
+    }
+
+    public List<Comment> getUserComments(String uid) throws Exception {
+        return commentRepository.findByUidAndDeletedFalse(uid);
     }
 }

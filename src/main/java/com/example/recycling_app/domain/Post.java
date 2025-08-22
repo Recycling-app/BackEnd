@@ -17,7 +17,7 @@ import java.util.List;
 public class Post {
     private String postId;
     private String uid;
-    private String authorName;
+    private String nickname;
     private String title;
     private String category;       // 예: 분리수거, 업사이클링, Q&A 등
     private List<ContentBlock> contents;     // 본문: 텍스트/이미지/동영상 혼합 배열

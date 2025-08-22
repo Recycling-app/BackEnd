@@ -2,7 +2,9 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
+import com.example.recycling_app.dto.UserProfileDto;
 import com.example.recycling_app.service.CommunityService;
+import com.example.recycling_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,8 @@ public class CommunityController {
 
     @Autowired
     private CommunityService communityService;
+    @Autowired
+    private UserService userService;
 
     // 게시글 작성
     @PostMapping("/posts")
@@ -115,14 +119,14 @@ public class CommunityController {
     // 내가 작성한 게시글 조회
     @GetMapping("/me/posts")
     public ResponseEntity<List<Post>> getMyPosts(@RequestParam String uid) throws Exception {
-        List<Post> posts = communityService.getPostsByUser(uid);
+        List<Post> posts = communityService.getMyPosts(uid);
         return ResponseEntity.ok(posts);
     }
 
     // 내가 작성한 댓글 조회
     @GetMapping("/me/comments")
     public ResponseEntity<List<Comment>> getMyComments(@RequestParam String uid) throws Exception {
-        List<Comment> comments = communityService.getCommentsByUser(uid);
+        List<Comment> comments = communityService.getMyComments(uid);
         return ResponseEntity.ok(comments);
     }
 
@@ -138,5 +142,26 @@ public class CommunityController {
     public ResponseEntity<List<Post>> getMyLikedPosts(@RequestParam String uid) throws Exception {
         List<Post> likedPosts = communityService.getLikedPostsByUser(uid);
         return ResponseEntity.ok(likedPosts);
+    }
+
+    // 상대방 프로필 기본 정보 조회
+    @GetMapping("/users/{uid}/profile")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String uid) throws Exception {
+        UserProfileDto profile = userService.getUserProfile(uid);
+        return ResponseEntity.ok(profile);
+    }
+
+    // 상대방이 작성한 게시글 조회
+    @GetMapping("/users/{uid}/posts")
+    public ResponseEntity<List<Post>> getUserPosts(@PathVariable String uid) throws Exception {
+        List<Post> posts = communityService.getUserPosts(uid);
+        return ResponseEntity.ok(posts);
+    }
+
+    // 상대방이 작성한 댓글 목록 조회
+    @GetMapping("/users/{uid}/comments")
+    public ResponseEntity<List<Comment>> getUserComments(@PathVariable String uid) throws Exception {
+        List<Comment> comments = communityService.getUserComments(uid);
+        return ResponseEntity.ok(comments);
     }
 }

@@ -1,5 +1,9 @@
 package com.example.recycling_app.service;
 
+import com.example.recycling_app.dto.UserProfileDto;
+import com.example.recycling_app.repository.CommentRepository;
+import com.example.recycling_app.repository.LikeRepository;
+import com.example.recycling_app.repository.PostRepository;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.google.firebase.cloud.FirestoreClient;
@@ -13,6 +17,16 @@ import java.util.concurrent.ExecutionException;
 public class UserService {
 
     private static final String COLLECTION_NAME = "users"; // 사용자 정보를 저장한 Firestore 컬렉션 이름
+    private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
+    private final LikeRepository likeRepository;
+
+    // 생성자 주입 추가
+    public UserService(PostRepository postRepository, CommentRepository commentRepository, LikeRepository likeRepository) {
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+        this.likeRepository = likeRepository;
+    }
 
     // UID에 해당하는 사용자의 역할(role) 정보를 Firestore에서 조회
     public String getUserRole(String uid) throws ExecutionException, InterruptedException {
@@ -37,5 +51,34 @@ public class UserService {
     public boolean isAdmin(String uid) throws ExecutionException, InterruptedException {
         String role = getUserRole(uid);    // 사용자의 역할 가져오기
         return "admin".equals(role);       // 역할이 "admin"인지 비교 후 결과 반환
+    }
+
+    // 사용자 프로필 조회 (게시글, 댓글, 좋아요 수)
+    public UserProfileDto getUserProfile(String uid) throws ExecutionException, InterruptedException {
+        Firestore db = FirestoreClient.getFirestore();
+
+        DocumentSnapshot doc = db.collection(COLLECTION_NAME)
+                .document(uid)
+                .get()
+                .get();
+
+        if (!doc.exists()) {
+            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+        }
+
+        String nickname = doc.getString("nickname");
+        String profileImageUrl = doc.getString("profileImageUrl");
+
+        int postCount = 0, commentCount = 0, likeCount = 0;
+
+        try {
+            postCount = postRepository.findByUidAndDeletedFalse(uid).size();
+            commentCount = commentRepository.findByUidAndDeletedFalse(uid).size();
+            likeCount = likeRepository.findPostsLikedByUser(uid).size();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new UserProfileDto(uid, nickname, profileImageUrl, postCount, commentCount, likeCount);
     }
 }
