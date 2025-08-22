@@ -1,92 +1,93 @@
 package com.example.recycling_app.service;
 
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.Acl;
 import com.google.cloud.storage.Blob;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
 import com.google.firebase.cloud.StorageClient;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.PostConstruct;
 import java.io.InputStream;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class FirebaseStorageService {
 
-    private static final String BUCKET_NAME = "your-name-382bf.firebasestorage.app";
+    private final Storage storage;
 
-    @PostConstruct
-    public void initialize() throws Exception {
-        ClassPathResource resource = new ClassPathResource("firebase/firebase-service-account.json");
-        try (InputStream serviceAccount = resource.getInputStream()) {
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setStorageBucket(BUCKET_NAME)
-                    .build();
-            if (FirebaseApp.getApps().isEmpty()) {
-                FirebaseApp.initializeApp(options);
-            }
-        }
+    // 생성자를 통해 Google Cloud Storage 클라이언트를 주입받습니다.
+    public FirebaseStorageService(Storage storage) {
+        this.storage = storage;
     }
 
     /**
      * 폴더 이름이 없는 경우, 메인 메소드에 null을 전달하여 호출
      */
     public String uploadFile(MultipartFile file) throws Exception {
-        // 중복 로직을 없애고 아래의 메인 메소드를 호출하도록 변경
         return this.uploadFile(file, null);
     }
 
-    // MultipartFile을 Firebase Storage의 지정된 폴더에 업로드하고 공개 URL을 반환합니다.
+    /**
+     * MultipartFile을 Firebase Storage의 지정된 폴더에 업로드하고 공개 URL을 반환합니다.
+     * @param file 클라이언트로부터 받은 MultipartFile
+     * @param folderName 이미지를 저장할 Storage 내의 폴더 이름
+     * @return 공개적으로 접근 가능한 고정 URL
+     */
     public String uploadFile(MultipartFile file, String folderName) throws Exception {
-        // 파일 이름 생성
+        // 기본 버킷 이름을 가져옵니다.
+        String bucketName = StorageClient.getInstance().bucket().getName();
+
+        // 고유한 파일 이름을 생성합니다.
         String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
         String fullPath;
 
-        // folderName 유무에 따라 경로 설정
+        // folderName 유무에 따라 전체 경로를 설정합니다.
         if (StringUtils.hasText(folderName)) {
             fullPath = folderName.trim() + "/" + fileName;
         } else {
             fullPath = fileName;
         }
 
-        var bucket = StorageClient.getInstance().bucket();
+        // --- 파일 업로드 로직 ---
+        BlobId blobId = BlobId.of(bucketName, fullPath);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                .setContentType(file.getContentType())
+                .build();
 
-        // 파일 업로드
-        bucket.create(fullPath, file.getBytes(), file.getContentType());
+        try (InputStream inputStream = file.getInputStream()) {
+            storage.create(blobInfo, inputStream.readAllBytes());
+        }
 
-        // 업로드된 파일의 참조(Blob)를 가져옵니다.
-        Blob blob = bucket.get(fullPath);
+        // 1. 파일을 모든 사용자가 읽을 수 있도록 공개(Public)로 설정합니다.
+        storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
-        // 유효한 서명된 URL(토큰 포함)을 생성합니다.
-        URL signedUrl = blob.signUrl(36500, TimeUnit.DAYS);
-
-        // 생성된 완전한 URL을 문자열로 반환합니다.
-        return signedUrl.toString();
+        // 2. 파일의 고정적인 공개 미디어 링크를 반환합니다.
+        return storage.get(blobId).getMediaLink();
     }
 
-    // Firebase Storage에서 파일을 삭제합니다.
+    /**
+     * Firebase Storage에서 파일을 삭제합니다.
+     * @param fileUrl 삭제할 파일의 URL
+     */
     public void deleteFile(String fileUrl) throws Exception {
-        // fileUrl에서 버킷 내부 파일 경로(fullPath)를 추출합니다.
-        var bucket = StorageClient.getInstance().bucket();
-        String encodedFullPath = fileUrl.split("/o/")[1].split("\\?")[0];
-        String fullPath = URLDecoder.decode(encodedFullPath, StandardCharsets.UTF_8);
+        String bucketName = StorageClient.getInstance().bucket().getName();
 
-        Blob blob = bucket.get(fullPath);
+        // mediaLink 형식의 URL에서 파일 경로를 추출합니다.
+        String objectNameEncoded = fileUrl.split("/o/")[1].split("\\?")[0];
+        String objectName = URLDecoder.decode(objectNameEncoded, StandardCharsets.UTF_8);
 
-        if (blob != null && blob.exists()) {
-            blob.delete();
-            System.out.println("Storage 파일 삭제 성공: " + fullPath);
+        BlobId blobId = BlobId.of(bucketName, objectName);
+        boolean deleted = storage.delete(blobId);
+
+        if (deleted) {
+            System.out.println("Storage 파일 삭제 성공: " + objectName);
         } else {
-            System.out.println("Storage 파일이 존재하지 않음: " + fullPath);
+            System.out.println("Storage 파일이 존재하지 않거나 삭제에 실패함: " + objectName);
         }
     }
 }
