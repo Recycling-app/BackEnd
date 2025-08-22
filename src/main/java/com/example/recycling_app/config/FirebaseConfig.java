@@ -22,6 +22,10 @@ public class FirebaseConfig {
     @Value("${firebase.sdk.path}")
     private String firebaseSdkPath;
 
+    // application.properties에 스토리지 버킷 이름 추가
+    @Value("${firebase.storage.bucket}")
+    private String firebaseStorageBucket;
+
     private final ResourceLoader resourceLoader;
 
     // 생성자: ResourceLoader 주입
@@ -40,7 +44,8 @@ public class FirebaseConfig {
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    // .setDatabaseUrl("https://<YOUR_DATABASE_NAME>.firebaseio.com") // 실시간 DB 사용 시 설정
+                    .setDatabaseUrl("https://<YOUR_DATABASE_NAME>.firebaseio.com") // 실시간 DB 사용 시 설정
+                    .setStorageBucket(firebaseStorageBucket)
                     .build();
 
             FirebaseApp.initializeApp(options);
