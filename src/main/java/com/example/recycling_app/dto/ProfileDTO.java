@@ -23,5 +23,5 @@ public class ProfileDTO {
     private String uid;
     private String region;           // 지역
     private boolean isGoogleUser;    // 구글 계정 사용자 여부
-    private String googleaccount;    // 구글 계정 정보
+    private boolean googleaccount;    // 구글 계정 정보
 }
