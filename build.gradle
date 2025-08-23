@@ -21,7 +21,7 @@ configurations {
 }
 
 repositories {
-	mavenCentral() // Maven Central 저장소 사용
+	mavenCentral()
 }
 
 dependencies {
@@ -40,6 +40,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
 	// Lombok (Getter, Setter, 생성자 등을 자동으로 생성)
+	// Google Cloud Storage (Firebase Storage용)
+	implementation 'com.google.cloud:google-cloud-storage:2.26.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter'
+
+	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -70,6 +76,7 @@ dependencies {
 
 	// OpenCSV (CSV 파일 파싱)
 	implementation 'com.opencsv:opencsv:5.9' // OpenCSV 버전
+
 
 }
 
