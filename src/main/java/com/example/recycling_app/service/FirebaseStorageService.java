@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class FirebaseStorageService {
 
-    private static final String BUCKET_NAME = "your-name-382bf.firebasestorage.app";
+    private static final String BUCKET_NAME = "your-project-id.appspot.com";
 
     @PostConstruct
     public void initialize() throws Exception {
@@ -48,8 +48,9 @@ public class FirebaseStorageService {
 
     // MultipartFile을 Firebase Storage의 지정된 폴더에 업로드하고 공개 URL을 반환합니다.
     public String uploadFile(MultipartFile file, String folderName) throws Exception {
-        // 파일 이름 생성
+        // 파일 이름 생성 (코드를 한 곳에서 관리)
         String fileName = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
+
         String fullPath;
 
         // folderName 유무에 따라 경로 설정
