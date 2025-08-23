@@ -49,9 +49,9 @@ public class FirebaseConfig {
                     .build();
 
             FirebaseApp.initializeApp(options);
-            System.out.println("✅ Firebase Admin SDK 초기화 성공!");
+            System.out.println("Firebase Admin SDK 초기화 성공!");
         } else {
-            System.out.println("✅ Firebase Admin SDK는 이미 초기화되어 있습니다.");
+            System.out.println("Firebase Admin SDK는 이미 초기화되어 있습니다.");
         }
     }
 }
