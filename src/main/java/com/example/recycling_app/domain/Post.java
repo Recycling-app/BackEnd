@@ -31,5 +31,4 @@ public class Post {
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
     private boolean isLikedByCurrentUser; // 추가: 현재 유저가 좋아요를 눌렀는지 여부 (DB 저장 X)
 
-//  private int viewCount;
 }

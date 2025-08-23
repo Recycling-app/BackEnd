@@ -13,9 +13,15 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
+<<<<<<< HEAD
+=======
+import java.net.URL;
+import java.net.URLEncoder;
+>>>>>>> 86db3be51642962054db97dd6f535779a4754b24
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class FirebaseStorageService {
@@ -58,12 +64,19 @@ public class FirebaseStorageService {
             fullPath = fileName;
         }
 
-        // 파일 업로드
-        StorageClient.getInstance().bucket().create(fullPath, file.getBytes(), file.getContentType());
+        var bucket = StorageClient.getInstance().bucket();
 
-        // URL 반환 (BUCKET_NAME 상수를 사용하여 일관성 유지)
-        return "https://firebasestorage.googleapis.com/v0/b/" + BUCKET_NAME + "/o/" +
-                java.net.URLEncoder.encode(fullPath, "UTF-8") + "?alt=media";
+        // 파일 업로드
+        bucket.create(fullPath, file.getBytes(), file.getContentType());
+
+        // 업로드된 파일의 참조(Blob)를 가져옵니다.
+        Blob blob = bucket.get(fullPath);
+
+        // 유효한 서명된 URL(토큰 포함)을 생성합니다.
+        URL signedUrl = blob.signUrl(36500, TimeUnit.DAYS);
+
+        // 생성된 완전한 URL을 문자열로 반환합니다.
+        return signedUrl.toString();
     }
 
     // Firebase Storage에서 파일을 삭제합니다.

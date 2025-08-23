@@ -44,6 +44,7 @@ public class CommunityService {
         post.setCreatedAt(new Date());
         post.setUpdatedAt(new Date());
         post.setDeleted(false); // soft delete 초기화
+
         if (post.getTitle() == null || post.getTitle().isEmpty()) {
             throw new IllegalArgumentException("게시글 제목은 필수입니다.");
         }
@@ -116,6 +117,8 @@ public class CommunityService {
         existingPost.setDeleted(true);
         existingPost.setDeletedAt(new Date());
         postRepository.save(existingPost);
+
+
     }
 
     // 댓글 작성
@@ -130,6 +133,12 @@ public class CommunityService {
         }
 
         commentRepository.save(comment);
+
+        // 댓글이 추가되면 게시글의 commentsCount를 1 증가시킵니다.
+        Post post = postRepository.findById(comment.getPostId())
+                .orElseThrow(() -> new NotFoundException("게시글이 존재하지 않습니다."));
+        post.setCommentsCount(post.getCommentsCount() + 1);
+        postRepository.save(post);
     }
 
     // 게시글별 댓글 및 대댓글 조회
@@ -175,6 +184,12 @@ public class CommunityService {
         comment.setDeleted(true);
         comment.setDeletedAt(new Date());
         commentRepository.save(comment);
+
+        // 댓글 삭제 시 게시글의 commentsCount를 1 감소시킵니다.
+        Post post = postRepository.findById(comment.getPostId())
+                .orElseThrow(() -> new NotFoundException("게시글이 존재하지 않습니다."));
+        post.setCommentsCount(post.getCommentsCount() - 1);
+        postRepository.save(post);
     }
 
     // 좋아요 토글 로직으로 변경
