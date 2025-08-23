@@ -21,4 +21,7 @@ public class ProfileDTO {
     private String nickname; //사용자가 설정한 닉네임
     private boolean isProfilePublic; // 프로필 공개 여부 추가
     private String uid;
+    private String region;           // 지역
+    private boolean isGoogleUser;    // 구글 계정 사용자 여부
+    private String googleaccount;    // 구글 계정 정보
 }
