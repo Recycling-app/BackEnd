@@ -13,11 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.InputStream;
-<<<<<<< HEAD
-=======
 import java.net.URL;
-import java.net.URLEncoder;
->>>>>>> 86db3be51642962054db97dd6f535779a4754b24
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;

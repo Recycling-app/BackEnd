@@ -1,6 +1,7 @@
 package com.example.recycling_app.service;
 
 import com.example.recycling_app.dto.UserProfileDto;
+import com.example.recycling_app.exception.NotFoundException;
 import com.example.recycling_app.repository.CommentRepository;
 import com.example.recycling_app.repository.LikeRepository;
 import com.example.recycling_app.repository.PostRepository;
@@ -63,7 +64,7 @@ public class UserService {
                 .get();
 
         if (!doc.exists()) {
-            throw new RuntimeException("사용자를 찾을 수 없습니다.");
+            throw new NotFoundException("사용자를 찾을 수 없습니다.");
         }
 
         String nickname = doc.getString("nickname");
