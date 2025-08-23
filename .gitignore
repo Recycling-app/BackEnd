@@ -38,3 +38,6 @@ out/
 
 # Firebase Service Account Key
 src/main/resources/firebase/firebase-service-account.json
+/src/main/resources
+*.properties
+src/main/resources/application.properties
