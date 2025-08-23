@@ -1,6 +1,7 @@
 package com.example.recycling_app.service.market;
 
 import com.example.recycling_app.dto.market.ProductDto;
+import com.example.recycling_app.service.FirebaseStorageService;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
