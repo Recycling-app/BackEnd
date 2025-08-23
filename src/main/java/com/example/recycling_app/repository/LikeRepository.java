@@ -1,6 +1,7 @@
 package com.example.recycling_app.repository;
 
 import com.example.recycling_app.domain.Like;
+import com.example.recycling_app.domain.Post;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class LikeRepository {
@@ -31,7 +33,6 @@ public class LikeRepository {
         likeRef.set(like).get();
     }
 
-    // 좋아요 존재 여부를 확인하는 메서드 추가
     public Optional<Like> findById(String postId, String uid) throws Exception {
         String likeId = postId + "_" + uid;
         DocumentSnapshot doc = firestore.collection("likes").document(likeId).get().get();
@@ -41,36 +42,30 @@ public class LikeRepository {
         return Optional.empty();
     }
 
-    // 좋아요를 삭제하는 메서드 추가
     public void deleteById(String postId, String uid) throws Exception {
         String likeId = postId + "_" + uid;
         firestore.collection("likes").document(likeId).delete().get();
     }
 
-    // 내가 좋아요한 게시글 목록 조회
-    public List<com.example.recycling_app.domain.Post> findPostsLikedByUser(String uid) throws Exception {
+    // 내가 좋아요한 게시글 ID 목록 조회
+    public List<String> findLikedPostIdsByUid(String uid) throws Exception {
         QuerySnapshot likeQ = firestore.collection("likes")
                 .whereEqualTo("uid", uid)
                 .get().get();
+        return likeQ.getDocuments().stream()
+                .map(doc -> doc.getString("postId"))
+                .collect(Collectors.toList());
+    }
 
-        List<String> postIds = new ArrayList<>();
-        for (DocumentSnapshot likeDoc : likeQ.getDocuments()) {
-            String postId = likeDoc.getString("postId");
-            if (postId != null && !postIds.contains(postId)) {
-                postIds.add(postId);
-            }
+    // 내가 좋아요한 게시글 목록 조회 (N+1 문제 해결)
+    public List<Post> findPostsLikedByUser(String uid) throws Exception {
+        // 1. 좋아요한 게시글 ID 목록을 효율적으로 가져옵니다.
+        List<String> postIds = findLikedPostIdsByUid(uid);
+        if (postIds.isEmpty()) {
+            return new ArrayList<>();
         }
-
-        List<com.example.recycling_app.domain.Post> posts = new ArrayList<>();
-        for (String postId : postIds) {
-            DocumentSnapshot postDoc = firestore.collection("posts").document(postId).get().get();
-            if (postDoc.exists()) {
-                com.example.recycling_app.domain.Post post = postDoc.toObject(com.example.recycling_app.domain.Post.class);
-                if (post != null && !post.isDeleted()) {
-                    posts.add(post);
-                }
-            }
-        }
-        return posts;
+        // 2. PostRepository의 findAllByIds 메서드를 사용하여 한 번에 모든 게시글을 가져옵니다.
+        PostRepository postRepository = new PostRepository(); // 주의: Autowired가 아닌 경우 직접 생성
+        return postRepository.findAllById(postIds);
     }
 }

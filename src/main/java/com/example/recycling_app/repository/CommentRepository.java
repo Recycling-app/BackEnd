@@ -34,15 +34,11 @@ public class CommentRepository {
         return Optional.empty();
     }
 
-    public List<Comment> findByPostIdAndParent(String postId, String parentId) throws Exception {
+    public List<Comment> findByPostIdAndParent(String postId) throws Exception {
         Query query = firestore.collection("comments")
                 .whereEqualTo("postId", postId)
                 .whereEqualTo("deleted", false);
-        if (parentId == null) {
-            query = query.whereEqualTo("parentId", null); // 1차 댓글 조회
-        } else {
-            query = query.whereEqualTo("parentId", parentId); // 대댓글 조회
-        }
+
         QuerySnapshot qs = query.get().get();
         List<Comment> result = new ArrayList<>();
         for (DocumentSnapshot doc : qs.getDocuments()) {

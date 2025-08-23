@@ -3,9 +3,13 @@ package com.example.recycling_app.controller;
 import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
 import com.example.recycling_app.dto.UserProfileDto;
+import com.example.recycling_app.exception.UnauthorizedException;
 import com.example.recycling_app.service.CommunityService;
 import com.example.recycling_app.service.UserService;
+import com.example.recycling_app.util.FirebaseTokenVerifier;
+import com.google.firebase.auth.FirebaseAuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,98 +24,176 @@ public class CommunityController {
     private CommunityService communityService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private FirebaseTokenVerifier firebaseTokenVerifier;
 
     // 게시글 작성
     @PostMapping("/posts")
-    public ResponseEntity<Map<String, String>> createPost(@RequestBody Post post) throws Exception {
-        communityService.writePost(post);
-        return ResponseEntity.status(201).body(Map.of("message", "게시글이 성공적으로 작성되었습니다."));
+    public ResponseEntity<?> createPost(@RequestBody Post post, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            post.setUid(verifiedUid);
+            communityService.writePost(post);
+            return ResponseEntity.status(201).body(Map.of("message", "게시글이 성공적으로 작성되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
-    // 전체 게시글 조회
+    // 전체 게시글 조회 (권한 검증 필요 없음)
     @GetMapping("/posts/all")
-    public ResponseEntity<List<Post>> getAllPosts() throws Exception {
-        List<Post> posts = communityService.getAllPosts();
+    public ResponseEntity<List<Post>> getAllPosts(@RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws Exception {
+        String uid = null;
+        if (authorizationHeader != null) {
+            uid = firebaseTokenVerifier.verifyIdToken(authorizationHeader.substring(7));
+        }
+        List<Post> posts = communityService.getAllPosts(uid);
         return ResponseEntity.ok(posts);
     }
 
-    // 카테고리별 게시글 조회
+    // 카테고리별 게시글 조회 (권한 검증 필요 없음)
     @GetMapping("/posts")
-    public ResponseEntity<List<Post>> getPostsByCategory(@RequestParam String category) throws Exception {
-        List<Post> posts = communityService.getPostsByCategory(category);
+    public ResponseEntity<List<Post>> getPostsByCategory(@RequestParam String category, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws Exception {
+        String uid = null;
+        if (authorizationHeader != null) {
+            uid = firebaseTokenVerifier.verifyIdToken(authorizationHeader.substring(7));
+        }
+        List<Post> posts = communityService.getPosts(category, uid);
         return ResponseEntity.ok(posts);
     }
 
     // 게시글 수정
     @PutMapping("/posts/{postId}")
-    public ResponseEntity<Map<String, String>> updatePost(@PathVariable String postId,
-                                                          @RequestParam String uid,
-                                                          @RequestBody Post updatedPost) throws Exception {
-        communityService.updatePost(postId, uid, updatedPost);
-        return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 수정되었습니다."));
+    public ResponseEntity<?> updatePost(@PathVariable String postId, @RequestBody Post post, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            communityService.updatePost(postId, post, verifiedUid);
+            return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 수정되었습니다."));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
-    // 게시글 삭제(논리삭제)
+
+    // 게시글 삭제
     @DeleteMapping("/posts/{postId}")
-    public ResponseEntity<Void> deletePost(@PathVariable String postId,
-                                           @RequestParam String uid) throws Exception {
-        communityService.deletePost(postId, uid);
-        return ResponseEntity.noContent().build(); // 204 No Content
+    public ResponseEntity<?> deletePost(@PathVariable String postId, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            communityService.deletePost(postId, verifiedUid);
+            return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
     // 댓글 작성
-    @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<?> writeComment(@PathVariable String postId, @RequestBody Comment comment) throws Exception {
-        comment.setPostId(postId);
-
-        // 부모댓글 ID가 있으면 parentId 필드에 정확히 설정 (null 가능)
-        if (comment.getParentId() != null && !comment.getParentId().isEmpty()) {
-            // parentId는 직접 받은 부모 댓글 commentId
-        } else {
-            comment.setParentId(null); // 일반 댓글일 때 null로 명시
+    @PostMapping("/comments")
+    public ResponseEntity<?> createComment(@RequestBody Comment comment, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            comment.setUid(verifiedUid);
+            communityService.writeComment(comment);
+            return ResponseEntity.status(201).body(Map.of("message", "댓글이 성공적으로 작성되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
         }
-
-        communityService.writeComment(comment);
-        return ResponseEntity.status(201).body("댓글이 성공적으로 작성되었습니다.");
     }
 
-
-    // 댓글 및 대댓글 조회 (parentId optional)
+    // 특정 게시글 댓글 조회 (권한 검증 필요 없음)
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<List<Comment>> getComments(@PathVariable String postId,
-                                                     @RequestParam(required = false) String parentId) throws Exception {
-        List<Comment> comments = communityService.getCommentsByPostIdAndParent(postId, parentId);
+    public ResponseEntity<List<Comment>> getComments(@PathVariable String postId) throws Exception {
+        List<Comment> comments = communityService.getComments(postId);
         return ResponseEntity.ok(comments);
     }
 
     // 댓글 수정
     @PutMapping("/comments/{commentId}")
-    public ResponseEntity<Map<String, String>> updateComment(@PathVariable String commentId,
-                                                             @RequestParam String uid,
-                                                             @RequestBody Map<String, String> body) throws Exception {
-        String content = body.get("content");
-        communityService.updateComment(commentId, uid, content);
-        return ResponseEntity.ok(Map.of("message", "댓글이 성공적으로 수정되었습니다."));
+    public ResponseEntity<?> updateComment(@PathVariable String commentId, @RequestBody Map<String, String> updateData, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            communityService.updateComment(commentId, updateData.get("content"), verifiedUid);
+            return ResponseEntity.ok(Map.of("message", "댓글이 성공적으로 수정되었습니다."));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
-    // 댓글 삭제(논리삭제)
+    // 댓글 삭제
     @DeleteMapping("/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable String commentId,
-                                              @RequestParam String uid) throws Exception {
-        communityService.deleteComment(commentId, uid);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteComment(@PathVariable String commentId, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            communityService.deleteComment(commentId, verifiedUid);
+            return ResponseEntity.ok(Map.of("message", "댓글이 성공적으로 삭제되었습니다."));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
-    // 게시글 좋아요 수 증가/감소 (토글 기능)
+    // 좋아요/취소 토글
     @PatchMapping("/posts/{postId}/like")
-    public ResponseEntity<?> toggleLikes(@PathVariable String postId, @RequestParam String uid) throws Exception {
-        int likes = communityService.toggleLikes(postId, uid);
-        return ResponseEntity.ok(Map.of("likesCount", likes));
+    public ResponseEntity<?> toggleLikes(@PathVariable String postId, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String idToken = authorizationHeader.substring(7);
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            int newLikesCount = communityService.toggleLikes(postId, verifiedUid);
+            return ResponseEntity.ok(Map.of("message", "좋아요 상태가 변경되었습니다.", "likesCount", String.valueOf(newLikesCount)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류가 발생했습니다.");
+        }
     }
 
-    // 게시글 상세 조회 (현재 사용자 UID를 받아 좋아요 상태를 포함)
+
+    // 특정 게시글 상세 조회 (권한 검증 필요 없음)
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<Post> getPostById(@PathVariable String postId, @RequestParam(required = false) String uid) throws Exception {
+    public ResponseEntity<Post> getPostDetail(@PathVariable String postId, @RequestHeader(value = "Authorization", required = false) String authorizationHeader) throws Exception {
+        String uid = null;
+        if (authorizationHeader != null) {
+            uid = firebaseTokenVerifier.verifyIdToken(authorizationHeader.substring(7));
+        }
         Post post = communityService.getPost(postId, uid);
         return ResponseEntity.ok(post);
     }
@@ -123,42 +205,39 @@ public class CommunityController {
         return ResponseEntity.ok(posts);
     }
 
-    // 내가 작성한 댓글 조회
-    @GetMapping("/me/comments")
-    public ResponseEntity<List<Comment>> getMyComments(@RequestParam String uid) throws Exception {
-        List<Comment> comments = communityService.getMyComments(uid);
-        return ResponseEntity.ok(comments);
-    }
-
     // 내가 댓글 단 게시글 조회 (중복 게시글 없이)
     @GetMapping("/me/commented-posts")
-    public ResponseEntity<List<Post>> getPostsCommentedByMe(@RequestParam String uid) throws Exception {
-        List<Post> posts = communityService.getPostsCommentedByUser(uid);
+    public ResponseEntity<List<Post>> getPostsCommentedByMe(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        String idToken = authorizationHeader.substring(7);
+        String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+        List<Post> posts = communityService.getPostsCommentedByUser(verifiedUid);
         return ResponseEntity.ok(posts);
     }
 
     // 내가 좋아요한 게시글 조회
     @GetMapping("/me/likes")
-    public ResponseEntity<List<Post>> getMyLikedPosts(@RequestParam String uid) throws Exception {
-        List<Post> likedPosts = communityService.getLikedPostsByUser(uid);
+    public ResponseEntity<List<Post>> getMyLikedPosts(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        String idToken = authorizationHeader.substring(7);
+        String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+        List<Post> likedPosts = communityService.getLikedPostsByUser(verifiedUid);
         return ResponseEntity.ok(likedPosts);
     }
 
-    // 상대방 프로필 기본 정보 조회
+    // 상대방 프로필 기본 정보 조회 (권한 검증 필요 없음)
     @GetMapping("/users/{uid}/profile")
     public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String uid) throws Exception {
         UserProfileDto profile = userService.getUserProfile(uid);
         return ResponseEntity.ok(profile);
     }
 
-    // 상대방이 작성한 게시글 조회
+    // 상대방이 작성한 게시글 조회 (권한 검증 필요 없음)
     @GetMapping("/users/{uid}/posts")
     public ResponseEntity<List<Post>> getUserPosts(@PathVariable String uid) throws Exception {
         List<Post> posts = communityService.getUserPosts(uid);
         return ResponseEntity.ok(posts);
     }
 
-    // 상대방이 작성한 댓글 목록 조회
+    // 상대방이 작성한 댓글 목록 조회 (권한 검증 필요 없음)
     @GetMapping("/users/{uid}/comments")
     public ResponseEntity<List<Comment>> getUserComments(@PathVariable String uid) throws Exception {
         List<Comment> comments = communityService.getUserComments(uid);

@@ -28,7 +28,7 @@ public class Post {
     private int likesCount;
     private int commentsCount;
 
+    // 클라이언트에게 좋아요 상태를 전달하기 위한 필드. DB에 저장하지 않음.
     @JsonInclude(JsonInclude.Include.NON_DEFAULT)
-    private boolean isLikedByCurrentUser; // 추가: 현재 유저가 좋아요를 눌렀는지 여부 (DB 저장 X)
-
+    private boolean isLikedByCurrentUser;
 }
