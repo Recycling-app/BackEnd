@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class FirebaseStorageService {
@@ -64,13 +63,11 @@ public class FirebaseStorageService {
             storage.create(blobInfo, inputStream.readAllBytes());
         }
 
-//        // 1. 파일을 모든 사용자가 읽을 수 있도록 공개(Public)로 설정합니다.
-//        storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
-//
-//        // 2. 파일의 고정적인 공개 미디어 링크를 반환합니다.
-//        return storage.get(blobId).getMediaLink();
+        // 1. 파일을 모든 사용자가 읽을 수 있도록 공개(Public)로 설정합니다.
+        storage.createAcl(blobId, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
 
-        return storage.signUrl(blobInfo, 100, TimeUnit.DAYS, Storage.SignUrlOption.withV4Signature()).toString();
+        // 2. 파일의 고정적인 공개 미디어 링크를 반환합니다.
+        return storage.get(blobId).getMediaLink();
     }
 
     /**
