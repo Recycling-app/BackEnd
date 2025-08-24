@@ -84,6 +84,42 @@ public class ProductController {
         }
     }
 
+    // 상품 수정
+    @PutMapping("/{productId}")
+    public ResponseEntity<Map<String, Object>> updateProduct(
+            @PathVariable String productId,
+            @RequestPart("product") ProductDto productDto,
+            @RequestPart(value = "images", required = false) List<MultipartFile> imageFiles) {
+        Map<String, Object> response = new HashMap<>();
+
+        if (imageFiles != null && imageFiles.size() > 10) {
+            response.put("status", "error");
+            response.put("message", "이미지는 최대 10장까지 업로드할 수 있습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        try {
+            ProductDto updatedProduct = productService.updateProduct(productId, productDto, imageFiles);
+            response.put("status", "success");
+            response.put("message", "상품이 성공적으로 수정되었습니다.");
+            response.put("product", updatedProduct);
+            return ResponseEntity.ok(response);
+        } catch (SecurityException e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        } catch (RuntimeException e) {
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            response.put("status", "error");
+            response.put("message", "서버 내부 오류가 발생했습니다.");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     // 상품 삭제
     @DeleteMapping("/{productId}")
     public ResponseEntity<Map<Object, Object>> deleteProduct(

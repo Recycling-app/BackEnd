@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.net.URLDecoder;
@@ -41,14 +43,10 @@ public class ProductService {
         Firestore db = FirestoreClient.getFirestore();
 
         try {
-            // 이미지 URL들을 저장할 비어있는 리스트를 생성합니다
             List<String> imageUrls = new ArrayList<>();
 
-            // imageFiles 리스트의 각 파일을 순회합니다
             for (MultipartFile file : imageFiles) {
-                // 3. 비어있는 파일은 건너뜁니다
                 if (file != null && !file.isEmpty()) {
-                    // 각 파일을 개별적으로 업로드하고, 반환된 URL을 imageUrls 리스트에 추가합니다
                     String imageUrl = firebaseStorageService.uploadFile(file, PRODUCTS_FOLDER);
                     imageUrls.add(imageUrl);
                 }
@@ -57,10 +55,7 @@ public class ProductService {
                 throw new RuntimeException("유효한 이미지가 없어 업로드에 실패했습니다.");
             }
 
-            // ProductDto에 이미지 URL 리스트를 설정합니다.
             product.setImages(imageUrls);
-
-            // 상품 메타데이터를 Firestore에 저장합니다.
             String productId = UUID.randomUUID().toString();
             product.setProductId(productId);
             product.setCreatedAt(System.currentTimeMillis());
@@ -111,7 +106,6 @@ public class ProductService {
         Firestore db = FirestoreClient.getFirestore();
         String lowercaseKeyword = keyword.toLowerCase().trim();
 
-        // 모든 상품을 가져와서 필터링
         ApiFuture<QuerySnapshot> future = db.collection(COLLECTION_NAME)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get();
@@ -123,7 +117,6 @@ public class ProductService {
             try {
                 ProductDto product = document.toObject(ProductDto.class);
 
-                // 상품명과 설명에서 키워드 검색 (대소문자 무시)
                 boolean nameMatch = product.getProductName() != null &&
                         product.getProductName().toLowerCase().contains(lowercaseKeyword);
 
@@ -140,6 +133,89 @@ public class ProductService {
 
         System.out.println("상품 검색 완료 - 키워드: '" + keyword + "', 결과: " + products.size() + "개");
         return products;
+    }
+
+    // 상품 수정
+    public ProductDto updateProduct(String productId, ProductDto updatedData, List<MultipartFile> imageFiles) throws Exception {
+        if (productId == null || productId.trim().isEmpty()) {
+            throw new IllegalArgumentException("상품 ID가 필요합니다.");
+        }
+        if (updatedData == null || updatedData.getUid() == null) {
+            throw new IllegalArgumentException("업데이트 정보와 사용자 ID가 필요합니다.");
+        }
+
+        Firestore db = FirestoreClient.getFirestore();
+        DocumentReference productRef = db.collection(COLLECTION_NAME).document(productId);
+
+        try {
+            // 1. 기존 상품 정보 조회
+            DocumentSnapshot document = productRef.get().get();
+            if (!document.exists()) {
+                throw new RuntimeException("수정할 상품을 찾을 수 없습니다.");
+            }
+            ProductDto existingProduct = document.toObject(ProductDto.class);
+            if (existingProduct == null) {
+                throw new RuntimeException("상품 데이터를 읽을 수 없습니다.");
+            }
+
+            // 2. 소유권 확인
+            if (!existingProduct.getUid().equals(updatedData.getUid())) {
+                throw new SecurityException("자신의 상품만 수정할 수 있습니다.");
+            }
+
+            // 3. 업데이트할 필드 맵 생성
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("productName", updatedData.getProductName());
+            updates.put("productDescription", updatedData.getProductDescription());
+            updates.put("price", updatedData.getPrice());
+            updates.put("transactionType", updatedData.getTransactionType());
+
+            // 4. 이미지 처리 (새 이미지가 제공된 경우)
+            if (imageFiles != null && !imageFiles.isEmpty() && imageFiles.stream().anyMatch(f -> !f.isEmpty())) {
+                // 기존 이미지 삭제
+                List<String> oldImageUrls = existingProduct.getImages();
+                if (oldImageUrls != null && !oldImageUrls.isEmpty()) {
+                    for (String url : oldImageUrls) {
+                        try {
+                            firebaseStorageService.deleteFile(url);
+                        } catch (Exception e) {
+                            System.err.println("Storage 기존 파일 삭제 실패: " + url + ", 에러: " + e.getMessage());
+                        }
+                    }
+                }
+
+                // 새 이미지 업로드
+                List<String> newImageUrls = new ArrayList<>();
+                for (MultipartFile file : imageFiles) {
+                    if (file != null && !file.isEmpty()) {
+                        String imageUrl = firebaseStorageService.uploadFile(file, PRODUCTS_FOLDER);
+                        newImageUrls.add(imageUrl);
+                    }
+                }
+                if (newImageUrls.isEmpty()) {
+                    throw new RuntimeException("유효한 이미지가 없어 업로드에 실패했습니다.");
+                }
+                updates.put("images", newImageUrls);
+                updatedData.setImages(newImageUrls); // DTO에도 반영
+            } else {
+                // 새 이미지가 없으면 기존 이미지 URL을 유지
+                updatedData.setImages(existingProduct.getImages());
+            }
+
+            // 5. Firestore 문서 업데이트
+            productRef.update(updates).get();
+            System.out.println("상품 수정 완료: " + productId);
+
+            // 6. 업데이트된 전체 DTO 반환
+            updatedData.setProductId(existingProduct.getProductId());
+            updatedData.setCreatedAt(existingProduct.getCreatedAt());
+
+            return updatedData;
+
+        } catch (Exception e) {
+            System.err.println("상품 수정 실패: " + e.getMessage());
+            throw new RuntimeException("상품 수정 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 
     // 상품 삭제
@@ -184,7 +260,6 @@ public class ProductService {
                     try {
                         firebaseStorageService.deleteFile(url);
                     } catch (Exception e) {
-                        // 특정 이미지 삭제에 실패하더라도 전체 프로세스가 중단되지 않도록 로그만 남깁니다.
                         System.err.println("Storage 파일 삭제 실패: " + url + ", 에러: " + e.getMessage());
                     }
                 }
