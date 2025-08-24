@@ -1,4 +1,3 @@
-
 package com.example.recycling_app.controller;
 
 import com.example.recycling_app.dto.ProfileDTO;
@@ -33,27 +32,32 @@ public class ProfileController {
     @GetMapping("/{uid}")
     public ResponseEntity<?> getProfile(
             @PathVariable String uid,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+            @RequestHeader("Authorization") String authorizationHeader // [수정] Authorization 헤더 추가
     ) {
         try {
-            // [수정] 다른 사용자 프로필 조회 시에도 작동하도록 토큰 검증 로직 간소화
-            // 이제 URL의 uid와 토큰의 uid를 비교하지 않고, 토큰이 존재하면 인증된 사용자로 간주합니다.
-            // 프로필 공개 여부는 ProfileService 내부에서 처리합니다.
-            String verifiedUid = null;
-            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                String idToken = authorizationHeader.substring(7);
-                verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+            // [수정] 토큰 검증 로직 추가
+            String token = authorizationHeader.replace("Bearer ", "");
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(token); // 토큰 검증 후 UID 추출
+
+            if (!uid.equals(verifiedUid)) {
+                log.warn("프로필 조회 시도 - 권한 없음: 요청 UID '{}', 토큰 UID '{}'", uid, verifiedUid);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다."); // 인증 실패
             }
 
             ProfileDTO profile = profileService.getProfile(uid);
-            log.info("프로필 조회 성공 (요청 UID: {})", uid);
             return ResponseEntity.ok(profile);
-        } catch (FirebaseAuthException e) {
-            log.error("프로필 조회 실패 - Firebase 인증 오류: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증에 실패했습니다.");
-        } catch (Exception e) {
-            log.error("프로필 조회 실패: {}", e.getMessage());
+        } catch (FirebaseAuthException e) { // [수정] Firebase 인증 예외 처리 추가
+            log.error("Firebase 인증 오류 - 프로필 조회 (UID: {}): {}", uid, e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증 실패: 유효하지 않은 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.warn("프로필 조회 실패 (UID: {}): {}", uid, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (InterruptedException | ExecutionException e) {
+            log.error("프로필 조회 중 서버 오류 발생 (UID: {}): {}", uid, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로필 조회 중 서버 오류가 발생했습니다.");
+        } catch (Exception e) {
+            log.error("예상치 못한 오류로 프로필 조회 실패 (UID: {}): {}", uid, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("알 수 없는 오류로 프로필 조회를 실패했습니다.");
         }
     }
 
@@ -134,12 +138,13 @@ public class ProfileController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다.");
             }
 
-            if (file.isEmpty()) {
+            if (file == null || file.isEmpty()) {
                 log.warn("이미지 업로드 실패 (UID: {}): 파일이 비어있습니다.", uid);
                 return ResponseEntity.badRequest().body("업로드할 파일이 없습니다.");
             }
 
             String imageUrl = profileService.uploadProfileImage(uid, file, true);
+
             log.info("프로필 이미지 업로드 성공 (UID: {}), URL: {}", uid, imageUrl);
             return ResponseEntity.ok(imageUrl);
         } catch (FirebaseAuthException e) {
