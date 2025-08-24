@@ -66,6 +66,6 @@ public class LikeRepository {
         }
         // 2. PostRepository의 findAllByIds 메서드를 사용하여 한 번에 모든 게시글을 가져옵니다.
         PostRepository postRepository = new PostRepository(); // 주의: Autowired가 아닌 경우 직접 생성
-        return postRepository.findAllById(postIds);
+        return postRepository.findAllByIds(postIds);
     }
 }

@@ -176,7 +176,7 @@ public class CommunityService {
 
     // 특정 게시글의 모든 댓글 조회 (대댓글 포함)
     public List<Comment> getComments(String postId) throws Exception {
-        return commentRepository.findByPostIdAndParent(postId);
+        return commentRepository.findByUidAndDeletedFalse(postId);
     }
 
     // 내가 작성한 게시글 조회
@@ -189,7 +189,7 @@ public class CommunityService {
     // 내가 댓글 단 게시글 조회
     public List<Post> getPostsCommentedByUser(String uid) throws Exception {
         List<String> postIds = commentRepository.findDistinctPostIdsByUidAndDeletedFalse(uid);
-        List<Post> posts = postRepository.findAllById(postIds);
+        List<Post> posts = postRepository.findAllByIds(postIds);
         setLikedStatusForPosts(posts, uid);
         return posts;
     }

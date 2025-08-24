@@ -1,16 +1,15 @@
-// build.gradle (Module: BackEnd-main)
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.3' // 버전 충돌 시 최신 버전 유지
-	id 'io.spring.dependency-management' version '1.1.7' // 버전 충돌 시 최신 버전 유지
+	id 'org.springframework.boot' version '3.5.3'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'com.example' // 'com.example' 또는 'com.yourname' 중 하나 선택 (일반적으로 'com.example' 유지)
+group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(17) // Java 17 사용
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
@@ -25,62 +24,46 @@ repositories {
 }
 
 dependencies {
-	// HEAD (test 브랜치)의 의존성
+	// Spring Boot Core
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	// Spring Security (API 접근 제어)
-	// SecurityConfig.java에서 /api/waste-guides 경로를 허용하고 있으므로 이 의존성이 필요합니다.
+	// Spring Security 및 JWT
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-
-	// USER (User 브랜치)와 HEAD 공통 의존성
-	// Spring Boot 웹 애플리케이션 스타터 (REST API 개발용)
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-
-	// Lombok (Getter, Setter, 생성자 등을 자동으로 생성)
-	// Google Cloud Storage (Firebase Storage용)
+	// Google Services (Firebase & Storage)
+	// Firebase Admin SDK와 Google Cloud Storage 의존성을 통일합니다.
+	// google-cloud-storage는 firebase-admin의 하위 의존성을 포함할 수 있으므로,
+	// 충돌을 방지하기 위해 firebase-admin 버전을 명시적으로 통일합니다.
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
 	implementation 'com.google.cloud:google-cloud-storage:2.26.0'
-
-	implementation 'org.springframework.boot:spring-boot-starter'
 
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// 개발 도구 (애플리케이션 재시작 없이 코드 변경 반영 등)
+	// 개발 도구
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	// Firebase Admin SDK (Firestore 연동)
-	implementation 'com.google.firebase:firebase-admin:9.5.0' // Firebase Admin SDK 버전
-	testImplementation 'org.springframework.security:spring-security-test' // Spring Security 테스트 의존성 (HEAD에만 있음)
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// HEAD (test 브랜치)의 의존성 (JWT, Mail, Firebase Admin SDK (버전 9.5.0), OpenAPI, commons-lang3)
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	// 기타 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	implementation("com.google.firebase:firebase-admin:9.5.0") // HEAD의 Firebase Admin SDK 버전. Firebase Admin SDK for Java 추가(연동)
-	implementation ('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'){
-		exclude group: 'org.apache.commons', module: 'commons-lang3'
-	}
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 	implementation 'org.apache.commons:commons-lang3:3.18.0'
+	implementation 'com.opencsv:opencsv:5.9'
 
-	// USER (User 브랜치)의 의존성 (Firebase Admin SDK (버전 9.2.0), Google Cloud Storage)
-	// Firebase Admin SDK 버전은 최신 (9.5.0)으로 통일하는 것이 좋습니다.
-	implementation 'com.google.cloud:google-cloud-storage:2.26.0' // User 브랜치의 새로운 의존성
-
-
-	// OpenCSV (CSV 파일 파싱)
-	implementation 'com.opencsv:opencsv:5.9' // OpenCSV 버전
-
-
+	// 테스트
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
-	jvmArgs "-Xshare:off" // HEAD에만 있음, 필요에 따라 유지
+	jvmArgs "-Xshare:off"
 }

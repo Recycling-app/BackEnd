@@ -9,6 +9,7 @@ import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,6 +24,11 @@ public class CommentRepository {
         firestore.collection("comments").document(id).set(comment).get();
     }
 
+    // 댓글 삭제 (논리적 삭제)
+    public void delete(String commentId) throws Exception {
+        firestore.collection("comments").document(commentId).update("deleted", true, "deletedAt", new Date()).get();
+    }
+
     public Optional<Comment> findById(String commentId) throws Exception {
         DocumentSnapshot doc = firestore.collection("comments").document(commentId).get().get();
         if(doc.exists()) {
@@ -34,7 +40,9 @@ public class CommentRepository {
         return Optional.empty();
     }
 
-    public List<Comment> findByPostIdAndParent(String postId) throws Exception {
+    // 특정 게시글의 모든 댓글(논리적 삭제되지 않은)을 조회합니다.
+    // 1차 댓글과 대댓글을 모두 포함합니다.
+    public List<Comment> findByPostIdAndDeletedFalse(String postId) throws Exception {
         Query query = firestore.collection("comments")
                 .whereEqualTo("postId", postId)
                 .whereEqualTo("deleted", false);

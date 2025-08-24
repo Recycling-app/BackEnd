@@ -7,10 +7,9 @@ import com.google.cloud.firestore.QuerySnapshot;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Repository
 public class PostRepository {
@@ -23,12 +22,15 @@ public class PostRepository {
         firestore.collection("posts").document(id).set(post).get();
     }
 
+    // 게시글 삭제 (논리적 삭제)
+    public void delete(String postId) throws Exception {
+        firestore.collection("posts").document(postId).update("deleted", true, "deletedAt", new Date()).get();
+    }
+
     public Optional<Post> findById(String postId) throws Exception {
         DocumentSnapshot doc = firestore.collection("posts").document(postId).get().get();
-        System.out.println("Firestore에서 받은 doc.exists: " + doc.exists() + ", doc.id: " + doc.getId());
         if(doc.exists()) {
             Post post = doc.toObject(Post.class);
-            System.out.println("Post.isDeleted: " + (post != null ? post.isDeleted() : "post is null"));
             if(post!= null && !post.isDeleted()){
                 return Optional.of(post);
             }
@@ -36,7 +38,7 @@ public class PostRepository {
         return Optional.empty();
     }
 
-    // 전체 게시글 조회
+    // 전체 게시글 조회 (deleted = false)
     public List<Post> findAll() throws Exception {
         QuerySnapshot qs = firestore.collection("posts")
                 .whereEqualTo("deleted", false)
@@ -48,7 +50,7 @@ public class PostRepository {
         return result;
     }
 
-    // 카테고리별 조회
+    // 카테고리별 조회 (deleted = false)
     public List<Post> findByCategory(String category) throws Exception {
         QuerySnapshot qs = firestore.collection("posts")
                 .whereEqualTo("category", category)
@@ -75,16 +77,22 @@ public class PostRepository {
         return result;
     }
 
-    // ID 리스트로 게시글 조회(중복 제거, deleted 검사 없음)
-    public List<Post> findAllById(List<String> postIds) throws Exception {
+    // ID 리스트로 게시글 조회 (whereIn 사용, 최대 10개)
+    public List<Post> findAllByIds(List<String> postIds) throws ExecutionException, InterruptedException {
+        if (postIds == null || postIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // Firestore의 whereIn 쿼리 한계 때문에 10개씩 끊어서 처리
+        List<List<String>> partitionedIds = com.google.common.collect.Lists.partition(postIds, 10);
         List<Post> result = new ArrayList<>();
-        for (String postId : postIds) {
-            DocumentSnapshot doc = firestore.collection("posts").document(postId).get().get();
-            if (doc.exists()) {
-                Post post = doc.toObject(Post.class);
-                if (post != null && !post.isDeleted()) {
-                    result.add(post);
-                }
+
+        for (List<String> ids : partitionedIds) {
+            QuerySnapshot qs = firestore.collection("posts")
+                    .whereIn(com.google.cloud.firestore.FieldPath.documentId(), ids)
+                    .whereEqualTo("deleted", false)
+                    .get().get();
+            for (DocumentSnapshot doc : qs.getDocuments()) {
+                result.add(doc.toObject(Post.class));
             }
         }
         return result;

@@ -200,9 +200,23 @@ public class CommunityController {
 
     // 내가 작성한 게시글 조회
     @GetMapping("/me/posts")
-    public ResponseEntity<List<Post>> getMyPosts(@RequestParam String uid) throws Exception {
-        List<Post> posts = communityService.getMyPosts(uid);
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<List<Post>> getMyPosts(@RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        try {
+            // "Bearer " 부분을 제외한 실제 토큰을 추출
+            String idToken = authorizationHeader.substring(7);
+            // Firebase 인증 토큰 검증 및 UID 추출
+            String verifiedUid = firebaseTokenVerifier.verifyIdToken(idToken);
+
+            List<Post> posts = communityService.getMyPosts(verifiedUid);
+            return ResponseEntity.ok(posts);
+
+        } catch (FirebaseAuthException e) {
+            // 토큰이 유효하지 않거나 만료된 경우
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } catch (Exception e) {
+            // 그 외 서버 오류
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     // 내가 댓글 단 게시글 조회 (중복 게시글 없이)

@@ -1,16 +1,15 @@
 package com.example.recycling_app.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Storage;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.cloud.StorageClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -26,24 +25,22 @@ public class FirebaseInitializer {
     @PostConstruct
     public void init() {
         try {
-            InputStream serviceAccount = new ClassPathResource(firebaseSdkPath).getInputStream();
+            FileInputStream serviceAccount =
+                    new FileInputStream("src/main/resources/firebase/firebase-service-account.json");
 
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setStorageBucket(firebaseStorageBucket)
+                    .setStorageBucket("your-name-382bf.firebasestorage.app")
                     .build();
 
+            // Firebase 앱이 초기화 되어 있지 않으면 초기화 수행
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
                 System.out.println("Firebase initialized");
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Firebase 초기화 중 오류 발생", e);
-        }
-    }
 
-    @Bean
-    public Storage storage() {
-        return StorageClient.getInstance().bucket(firebaseStorageBucket).getStorage();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
