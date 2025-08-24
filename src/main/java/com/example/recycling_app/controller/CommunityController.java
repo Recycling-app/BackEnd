@@ -2,7 +2,6 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
-import com.example.recycling_app.dto.UserProfileDto;
 import com.example.recycling_app.exception.UnauthorizedException;
 import com.example.recycling_app.dto.UserProfileDTO;
 import com.example.recycling_app.service.CommunityService;

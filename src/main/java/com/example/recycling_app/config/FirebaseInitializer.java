@@ -24,8 +24,6 @@ public class FirebaseInitializer {
     @Value("${firebase.storage.bucket}")
     private String firebaseStorageBucket;
 
-    @Value("${firebase.database.url}")
-    private String firebaseDatabaseUrl;
 
     @PostConstruct
     public void init() {
@@ -36,7 +34,6 @@ public class FirebaseInitializer {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setStorageBucket(firebaseStorageBucket)
-                    .setDatabaseUrl(firebaseDatabaseUrl)
                     .build();
 
             // Firebase 앱이 초기화 되어 있지 않으면 초기화 수행

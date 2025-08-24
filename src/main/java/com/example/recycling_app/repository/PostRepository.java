@@ -1,9 +1,7 @@
 package com.example.recycling_app.repository;
 
 import com.example.recycling_app.domain.Post;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QuerySnapshot;
+import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Repository;
 
@@ -61,6 +59,11 @@ public class PostRepository {
             result.add(doc.toObject(Post.class));
         }
         return result;
+    }
+
+    public void incrementCommentCount(String postId) throws ExecutionException, InterruptedException {
+        DocumentReference postRef = firestore.collection("posts").document(postId);
+        postRef.update("commentsCount", FieldValue.increment(1)).get();
     }
 
     // UID 기준 작성 게시글 조회 (deleted = false)

@@ -96,6 +96,8 @@ public class CommunityService {
     public Post getPost(String postId, String uid) throws Exception {
         Optional<Post> postOptional = postRepository.findById(postId);
         Post post = postOptional.orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
+
+
         // 현재 사용자의 좋아요 여부 설정
         if (uid != null) {
             boolean isLiked = likeRepository.findById(postId, uid).isPresent();
@@ -128,13 +130,16 @@ public class CommunityService {
         comment.setCreatedAt(new Date());
         comment.setUpdatedAt(new Date());
         commentRepository.save(comment);
-
+/*
         // 게시글의 댓글 수 업데이트
         Post post = postRepository.findById(comment.getPostId()).orElse(null);
         if (post != null) {
             post.setCommentsCount(post.getCommentsCount() + 1);
             postRepository.save(post);
         }
+        */
+        postRepository.incrementCommentCount(comment.getPostId());
+
     }
 
     // 댓글 수정
