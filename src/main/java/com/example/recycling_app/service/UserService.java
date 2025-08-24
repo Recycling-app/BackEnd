@@ -1,6 +1,6 @@
 package com.example.recycling_app.service;
 
-import com.example.recycling_app.dto.UserProfileDto;
+import com.example.recycling_app.dto.UserProfileDTO;
 import com.example.recycling_app.exception.NotFoundException;
 import com.example.recycling_app.repository.CommentRepository;
 import com.example.recycling_app.repository.LikeRepository;
@@ -55,7 +55,7 @@ public class UserService {
     }
 
     // 사용자 프로필 조회 (게시글, 댓글, 좋아요 수)
-    public UserProfileDto getUserProfile(String uid) throws ExecutionException, InterruptedException {
+    public UserProfileDTO getUserProfile(String uid) throws ExecutionException, InterruptedException {
         Firestore db = FirestoreClient.getFirestore();
 
         DocumentSnapshot doc = db.collection(COLLECTION_NAME)
@@ -80,6 +80,6 @@ public class UserService {
             e.printStackTrace();
         }
 
-        return new UserProfileDto(uid, nickname, profileImageUrl, postCount, commentCount, likeCount);
+        return new UserProfileDTO(uid, nickname, profileImageUrl, postCount, commentCount, likeCount);
     }
 }

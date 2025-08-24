@@ -4,6 +4,7 @@ import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
 import com.example.recycling_app.dto.UserProfileDto;
 import com.example.recycling_app.exception.UnauthorizedException;
+import com.example.recycling_app.dto.UserProfileDTO;
 import com.example.recycling_app.service.CommunityService;
 import com.example.recycling_app.service.UserService;
 import com.example.recycling_app.util.FirebaseTokenVerifier;
@@ -239,8 +240,8 @@ public class CommunityController {
 
     // 상대방 프로필 기본 정보 조회 (권한 검증 필요 없음)
     @GetMapping("/users/{uid}/profile")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String uid) throws Exception {
-        UserProfileDto profile = userService.getUserProfile(uid);
+    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String uid) throws Exception {
+        UserProfileDTO profile = userService.getUserProfile(uid);
         return ResponseEntity.ok(profile);
     }
 

@@ -11,6 +11,8 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.google.firebase.cloud.FirestoreClient;
 import com.example.recycling_app.dto.ProfileDTO;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -66,9 +68,16 @@ public class ProfileService {
 
     // UID로 Firestore 프로필 삭제 + Firebase Authentication 계정 삭제 (회원 탈퇴)
     public String deleteUserAccount(String uid) throws ExecutionException, InterruptedException, FirebaseAuthException {
-        deleteProfile(uid);                    // Firestore 프로필 삭제
+
+        // Realtime Database 데이터 삭제 로직
+        DatabaseReference userNode = FirebaseDatabase.getInstance().getReference("users").child(uid);
+        userNode.removeValueAsync().get();
+
+        deleteProfile(uid); // Firestore 프로필 삭제
         FirebaseAuth.getInstance().deleteUser(uid); // Firebase Auth 사용자 삭제
+
         return "회원 탈퇴 완료";
+
     }
 
     // 프로필 이미지를 Firebase Storage에 업로드 후 Firestore에 URL 저장 (옵션)
@@ -99,11 +108,17 @@ public class ProfileService {
 
     // UID에 해당하는 사용자의 일부 프로필 필드만 수정
     public String updateProfileFields(String uid, Map<String, Object> updates) throws ExecutionException, InterruptedException {
+
         Firestore db = FirestoreClient.getFirestore();
-        db.collection(COLLECTION_NAME)
-                .document(uid)
-                .update(updates)  // 일부 필드만 업데이트
-                .get();
+        DocumentReference docRef = db.collection(COLLECTION_NAME).document(uid);
+
+        // 기존 데이터 가져오기 (만약 isProfilePublic이 누락된 경우를 대비)
+        ProfileDTO existingProfile = docRef.get().get().toObject(ProfileDTO.class);
+        if (!updates.containsKey("isProfilePublic")) {
+            updates.put("isProfilePublic", existingProfile.isProfilePublic());
+        }
+
+        docRef.update(updates).get();
 
         return "프로필 일부 항목 수정 완료";
     }

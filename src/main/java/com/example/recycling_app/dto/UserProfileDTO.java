@@ -2,7 +2,7 @@ package com.example.recycling_app.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class UserProfileDto {
+public class UserProfileDTO {
     @JsonIgnore // 상대방 프로필 조회시 uid 안나오게 하기 위함
     private String uid;
 
@@ -12,7 +12,7 @@ public class UserProfileDto {
     private int commentCount;
     private int likeCount;
 
-    public UserProfileDto(String uid, String nickname, String profileImageUrl,
+    public UserProfileDTO(String uid, String nickname, String profileImageUrl,
                           int postCount, int commentCount, int likeCount) {
         this.uid = uid;
         this.nickname = nickname;
