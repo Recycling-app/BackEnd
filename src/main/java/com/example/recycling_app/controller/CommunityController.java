@@ -2,8 +2,8 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
-import com.example.recycling_app.exception.UnauthorizedException;
 import com.example.recycling_app.dto.UserProfileDTO;
+import com.example.recycling_app.exception.UnauthorizedException;
 import com.example.recycling_app.service.CommunityService;
 import com.example.recycling_app.service.UserService;
 import com.example.recycling_app.util.FirebaseTokenVerifier;
