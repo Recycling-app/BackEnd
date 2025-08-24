@@ -2,7 +2,7 @@ package com.example.recycling_app.controller;
 
 import com.example.recycling_app.domain.Comment;
 import com.example.recycling_app.domain.Post;
-import com.example.recycling_app.dto.UserProfileDto;
+import com.example.recycling_app.dto.UserProfileDTO;
 import com.example.recycling_app.service.CommunityService;
 import com.example.recycling_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,8 +146,8 @@ public class CommunityController {
 
     // 상대방 프로필 기본 정보 조회
     @GetMapping("/users/{uid}/profile")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable String uid) throws Exception {
-        UserProfileDto profile = userService.getUserProfile(uid);
+    public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String uid) throws Exception {
+        UserProfileDTO profile = userService.getUserProfile(uid);
         return ResponseEntity.ok(profile);
     }
 
