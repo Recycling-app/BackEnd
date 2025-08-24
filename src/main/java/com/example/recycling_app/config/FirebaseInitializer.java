@@ -23,6 +23,9 @@ public class FirebaseInitializer {
     @Value("${firebase.storage.bucket}")
     private String firebaseStorageBucket;
 
+    @Value("${firebase.database.url}")
+    private String firebaseDatabaseUrl;
+
     @PostConstruct
     public void init() {
         try {
@@ -31,6 +34,7 @@ public class FirebaseInitializer {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .setStorageBucket(firebaseStorageBucket)
+                    .setDatabaseUrl(firebaseDatabaseUrl)
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
