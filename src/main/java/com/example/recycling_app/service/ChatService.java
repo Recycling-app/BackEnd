@@ -27,8 +27,8 @@ public class ChatService {
 
     // chatRoomId 규칙: postId + uid 정렬
     public String buildChatRoomId(String postId, String uidA, String uidB) {
-        String x = uidA.compareTo(uidB) <= 0 ? uidA + "_" + uidB : uidB + "_" + uidA; // UID 정렬해서 중복 방지
-        return "chat_" + postId + "_" + x; // ex) chat_post123_uidA_uidB
+        String userPairId = uidA.compareTo(uidB) <= 0 ? uidA + "_" + uidB : uidB + "_" + uidA;
+        return "chat_" + postId + "_" + userPairId; // ex) chat_post123_uidA_uidB
     }
 
     // 채팅방 생성(없으면 새로 생성, 있으면 재사용)
