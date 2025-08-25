@@ -114,15 +114,35 @@ public class ProfileService {
     }
 
     // UID에 해당하는 사용자의 일부 프로필 필드만 수정
+
     public String updateProfileFields(String uid, Map<String, Object> updates) throws ExecutionException, InterruptedException {
+
         Firestore db = FirestoreClient.getFirestore();
-        db.collection(COLLECTION_NAME)
-                .document(uid)
-                .update(updates)  // 일부 필드만 업데이트
-                .get();
+
+        DocumentReference docRef = db.collection(COLLECTION_NAME).document(uid);
+
+
+
+        // 기존 데이터 가져오기 (만약 isProfilePublic이 누락된 경우를 대비)
+
+        ProfileDTO existingProfile = docRef.get().get().toObject(ProfileDTO.class);
+
+        if (!updates.containsKey("isProfilePublic")) {
+
+            updates.put("isProfilePublic", existingProfile.isProfilePublic());
+
+        }
+
+
+
+        docRef.update(updates).get();
+
+
 
         return "프로필 일부 항목 수정 완료";
+
     }
+
 
     // 사용자 비밀번호 변경
     public String changePassword(String uid, String currentPassword, String newPassword) throws FirebaseAuthException {
