@@ -164,7 +164,7 @@ public class ChatService {
         if (!postIds.isEmpty()) {
             List<DocumentReference> postRefs = new ArrayList<>();
             for (String postId : postIds) {
-                postRefs.add(db().collection("posts").document(postId));
+                postRefs.add(db().collection("products").document(postId));
             }
             List<ApiFuture<DocumentSnapshot>> futures = new ArrayList<>();
             for (DocumentReference ref : postRefs) futures.add(ref.get());
