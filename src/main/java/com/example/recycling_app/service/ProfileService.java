@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class ProfileService {
     private static final String COLLECTION_NAME = "users";                  // Firestore 사용자 컬렉션명
     private static final String BUCKET_NAME = "your-name-382bf.firebasestorage.app"; // Firebase Storage 버킷명 (실제 값으로 변경 필요)
-    private static final String SERVICE_ACCOUNT_KEY_PATH = "src/main/resources/firebase/firebase-service-account.json";
+    private static final String SERVICE_ACCOUNT_KEY_PATH = "${firebase.sdk.path}";
 
     // UID로 Firestore에서 사용자 프로필 조회
     public ProfileDTO getProfile(String uid) throws ExecutionException, InterruptedException {
